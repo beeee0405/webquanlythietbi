@@ -1,0 +1,163 @@
+using backend.Data.Entities;
+
+namespace backend.Data;
+
+public static class EntityMapper
+{
+    // ── ToDto ──────────────────────────────────────────────────
+
+    public static DeviceDto ToDto(Device d) => new(
+        d.Id.ToString(), d.AssetCode, d.Name, d.Category, d.Brand,
+        d.Room, d.Owner, d.Status, d.Warranty, d.Serial,
+        d.PurchaseDate, d.UpdatedAt);
+
+    public static TicketDto ToDto(Ticket t) => new(
+        t.Id.ToString(), t.Code, t.Subject, t.Requester, t.Room,
+        t.Device, t.Category, t.Priority, t.Status, t.Channel,
+        t.Assignee, t.Sla, t.CreatedAt, t.UpdatedAt);
+
+    public static MaintenanceDto ToDto(MaintenanceItem m) => new(
+        m.Id.ToString(), m.Code, m.Title, m.AssetCode, m.AssetName,
+        m.Room, m.Type, m.Priority, m.Status, m.Assignee,
+        m.ScheduledAt, m.CompletedAt, m.Cost, m.Note);
+
+    public static RoomDto ToDto(Room r) => new(
+        r.Id.ToString(), r.Code, r.Name, r.Building, r.Floor,
+        r.Type, r.Capacity.ToString(), r.Status, r.Manager, r.Note);
+
+    public static CameraDto ToDto(Camera c) => new(
+        c.Id.ToString(), c.Code, c.Name, c.Room, c.IpAddress,
+        c.Brand, c.Model, c.Resolution, c.Status,
+        c.InstalledAt, c.Warranty, c.Note);
+
+    public static NetworkDeviceDto ToDto(NetworkDevice n) => new(
+        n.Id.ToString(), n.Code, n.Name, n.Type, n.Brand, n.Model,
+        n.Room, n.IpAddress, n.MacAddress, n.Vlan, n.Port,
+        n.Status, n.Warranty, n.InstalledAt, n.Note);
+
+    public static InventorySessionDto ToDto(InventorySession i) => new(
+        i.Id.ToString(), i.Code, i.Room, i.Inspector, i.Status,
+        i.TotalDevices.ToString(), i.CheckedDevices.ToString(),
+        i.MissingDevices.ToString(), i.ExtraDevices.ToString(),
+        i.StartedAt, i.CompletedAt, i.Note);
+
+    public static TransferDto ToDto(Transfer t) => new(
+        t.Id.ToString(), t.Code, t.AssetCode, t.AssetName,
+        t.FromRoom, t.ToRoom, t.Requester, t.Approver,
+        t.Status, t.TransferredAt, t.ApprovedAt, t.Note);
+
+    public static LiquidationDto ToDto(Liquidation l) => new(
+        l.Id.ToString(), l.Code, l.AssetCode, l.AssetName,
+        l.Room, l.Reason, l.Condition, l.Status, l.Requester,
+        l.Approver, l.ResidualValue.ToString("N0"),
+        l.RequestedAt, l.CompletedAt, l.Note);
+
+    public static SoftwareDto ToDto(Software s) => new(
+        s.Id.ToString(), s.Name, s.Publisher, s.Version, s.Category,
+        s.LicenseType, s.LicenseKey, s.TotalLicenses.ToString(),
+        s.UsedLicenses.ToString(), s.ExpiresAt, s.Room, s.Status, s.Note);
+
+    public static AppUserDto ToDto(AppUser u) => new(
+        u.Id.ToString(), u.FullName, u.Email, u.Phone,
+        u.Department, u.Room, u.Role, u.Status,
+        u.CreatedAt, u.LastLogin);
+
+    // ── ToEntity ───────────────────────────────────────────────
+
+    public static Device ToEntity(DeviceDto d) => new()
+    {
+        AssetCode = d.AssetCode, Name = d.Name, Category = d.Category,
+        Brand = d.Brand, Room = d.Room, Owner = d.Owner,
+        Status = d.Status, Warranty = d.Warranty, Serial = d.Serial,
+        PurchaseDate = d.PurchaseDate, UpdatedAt = d.UpdatedAt
+    };
+
+    public static Ticket ToEntity(TicketDto t) => new()
+    {
+        Code = t.Code, Subject = t.Subject, Requester = t.Requester,
+        Room = t.Room, Device = t.Device, Category = t.Category,
+        Priority = t.Priority, Status = t.Status, Channel = t.Channel,
+        Assignee = t.Assignee, Sla = t.Sla,
+        CreatedAt = t.CreatedAt, UpdatedAt = t.UpdatedAt
+    };
+
+    public static MaintenanceItem ToEntity(MaintenanceDto m) => new()
+    {
+        Code = m.Code, Title = m.Title, AssetCode = m.AssetCode,
+        AssetName = m.AssetName, Room = m.Room, Type = m.Type,
+        Priority = m.Priority, Status = m.Status, Assignee = m.Assignee,
+        ScheduledAt = m.ScheduledAt, CompletedAt = m.CompletedAt,
+        Cost = m.Cost, Note = m.Note
+    };
+
+    public static Room ToEntity(RoomDto r) => new()
+    {
+        Code = r.Code, Name = r.Name, Building = r.Building,
+        Floor = r.Floor, Type = r.Type,
+        Capacity = int.TryParse(r.Capacity, out var cap) ? cap : 0,
+        Status = r.Status, Manager = r.Manager, Note = r.Note
+    };
+
+    public static Camera ToEntity(CameraDto c) => new()
+    {
+        Code = c.Code, Name = c.Name, Room = c.Room,
+        IpAddress = c.IpAddress, Brand = c.Brand, Model = c.Model,
+        Resolution = c.Resolution, Status = c.Status,
+        InstalledAt = c.InstalledAt, Warranty = c.Warranty, Note = c.Note
+    };
+
+    public static NetworkDevice ToEntity(NetworkDeviceDto n) => new()
+    {
+        Code = n.Code, Name = n.Name, Type = n.Type, Brand = n.Brand,
+        Model = n.Model, Room = n.Room, IpAddress = n.IpAddress,
+        MacAddress = n.MacAddress, Vlan = n.Vlan, Port = n.Port,
+        Status = n.Status, Warranty = n.Warranty,
+        InstalledAt = n.InstalledAt, Note = n.Note
+    };
+
+    public static InventorySession ToEntity(InventorySessionDto i) => new()
+    {
+        Code = i.Code, Room = i.Room, Inspector = i.Inspector,
+        Status = i.Status,
+        TotalDevices = int.TryParse(i.TotalDevices, out var t) ? t : 0,
+        CheckedDevices = int.TryParse(i.CheckedDevices, out var c) ? c : 0,
+        MissingDevices = int.TryParse(i.MissingDevices, out var m) ? m : 0,
+        ExtraDevices = int.TryParse(i.ExtraDevices, out var e) ? e : 0,
+        StartedAt = i.StartedAt, CompletedAt = i.CompletedAt, Note = i.Note
+    };
+
+    public static Transfer ToEntity(TransferDto t) => new()
+    {
+        Code = t.Code, AssetCode = t.AssetCode, AssetName = t.AssetName,
+        FromRoom = t.FromRoom, ToRoom = t.ToRoom,
+        Requester = t.Requester, Approver = t.Approver,
+        Status = t.Status, TransferredAt = t.TransferredAt,
+        ApprovedAt = t.ApprovedAt, Note = t.Note
+    };
+
+    public static Liquidation ToEntity(LiquidationDto l) => new()
+    {
+        Code = l.Code, AssetCode = l.AssetCode, AssetName = l.AssetName,
+        Room = l.Room, Reason = l.Reason, Condition = l.Condition,
+        Status = l.Status, Requester = l.Requester, Approver = l.Approver,
+        ResidualValue = decimal.TryParse(l.ResidualValue.Replace(",", ""), out var v) ? v : 0,
+        RequestedAt = l.RequestedAt, CompletedAt = l.CompletedAt, Note = l.Note
+    };
+
+    public static Software ToEntity(SoftwareDto s) => new()
+    {
+        Name = s.Name, Publisher = s.Publisher, Version = s.Version,
+        Category = s.Category, LicenseType = s.LicenseType,
+        LicenseKey = s.LicenseKey,
+        TotalLicenses = int.TryParse(s.TotalLicenses, out var tl) ? tl : 0,
+        UsedLicenses = int.TryParse(s.UsedLicenses, out var ul) ? ul : 0,
+        ExpiresAt = s.ExpiresAt, Room = s.Room, Status = s.Status, Note = s.Note
+    };
+
+    public static AppUser ToEntity(AppUserDto u) => new()
+    {
+        FullName = u.FullName, Email = u.Email, Phone = u.Phone,
+        Department = u.Department, Room = u.Room, Role = u.Role,
+        Status = u.Status, CreatedAt = u.CreatedAt, LastLogin = u.LastLogin
+    };
+}
