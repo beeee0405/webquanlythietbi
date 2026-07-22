@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: webquanlythietbi-backend
+    runtime: dotnet
+    runtimeVersion: 8.0
+    buildCommand: cd backend && dotnet build -c Release
+    startCommand: cd backend && dotnet bin/Release/net8.0/backend.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:10000
+    plan: free
+    autoDeploy: true
