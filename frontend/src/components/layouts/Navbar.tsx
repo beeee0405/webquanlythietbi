@@ -1,5 +1,6 @@
 import { Bell, LogOut, Menu, Search, Sparkles, UserRound } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -9,12 +10,22 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { MobileSidebarList } from '@/components/layouts/Sidebar'
 import { titleMap } from '@/nav'
 import { useAuth } from '@/contexts/AuthContext'
+import { getDashboardData } from '@/services/dashboardService'
 
 export function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const currentTitle = titleMap[location.pathname] ?? 'Dashboard'
+
+  const { data: dashboardData } = useQuery({
+    queryKey: ['dashboard-data'],
+    queryFn: getDashboardData,
+    staleTime: 60_000,
+    enabled: !!user
+  })
+
+  const alerts = dashboardData?.alerts ?? []
 
   const handleLogout = () => {
     logout()
@@ -65,14 +76,23 @@ export function Navbar() {
             <PopoverTrigger asChild>
               <Button variant="outline" size="icon" className="relative">
                 <Bell className="h-4 w-4" />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-emerald-400" />
+                {alerts.length > 0 && (
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-emerald-400" />
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 rounded-[20px] border-slate-800 bg-slate-950 p-4">
               <div className="text-sm font-semibold text-white">Thông báo</div>
               <div className="mt-3 space-y-3 text-sm text-slate-300">
-                <div className="rounded-[14px] border border-slate-800 bg-slate-900/60 p-3">Có 3 thiết bị sắp hết bảo hành.</div>
-                <div className="rounded-[14px] border border-slate-800 bg-slate-900/60 p-3">Ticket #141 đang chờ phân công.</div>
+                {alerts.length > 0 ? (
+                  alerts.map((alert, index) => (
+                    <div key={index} className="rounded-[14px] border border-slate-800 bg-slate-900/60 p-3">
+                      {alert.label}: {alert.value}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-slate-500 text-xs">Không có thông báo mới</div>
+                )}
               </div>
             </PopoverContent>
           </Popover>

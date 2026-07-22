@@ -31,6 +31,33 @@ export function ReportsPage() {
   const ticketByPriority = data?.ticketByPriority ?? reportTicketByPriorityData
   const roomWorkload = data?.roomWorkload ?? reportRoomWorkloadData
 
+  const totalDevs = overview.find(o => o.label === 'Tổng thiết bị')?.value || '0'
+  const activeDevs = deviceByStatus.find(s => s.name === 'Hoạt động')?.value || 0
+  const repairDevs = deviceByStatus.find(s => s.name === 'Đang sửa' || s.name === 'Bảo trì')?.value || 0
+  const brokenDevs = deviceByStatus.find(s => s.name === 'Hỏng')?.value || 0
+  const needRepair = Number(repairDevs) + Number(brokenDevs)
+
+  const topCategories = [...deviceByCategory]
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3)
+    .map(c => `${c.name}: ${c.value}`)
+    .join(' | ') || 'Chưa có dữ liệu'
+
+  const topRooms = [...roomWorkload]
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3)
+    .map(r => `${r.name}: ${r.value}`)
+    .join(' | ') || 'Chưa có dữ liệu'
+
+  const totalTkts = overview.find(o => o.label === 'Tổng ticket' || o.label === 'Ticket tháng này')?.value || '0'
+  const completedTkts = ticketByMonth.reduce((sum, item) => sum + item.value, 0) || 0
+  const activeTkts = ticketByPriority.reduce((sum, item) => sum + item.value, 0) || 0
+
+  const healthRate = overview.find(o => o.label === 'Sức khỏe hệ thống' || o.label === 'Tỉ lệ hoàn thành SLA')?.value || '100%'
+
+  const maintenanceCount = overview.find(o => o.label === 'Bảo trì' || o.label === 'Kế hoạch tháng')?.value || '0'
+  const maintenanceCost = maintenanceCostByMonth.reduce((sum, item) => sum + item.value, 0) || 0
+
   return (
     <div className="space-y-6">
       <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="glass-panel overflow-hidden p-6">
@@ -74,15 +101,15 @@ export function ReportsPage() {
           <CardContent className="space-y-3 text-sm text-slate-300">
             <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
               <div className="font-medium text-white mb-2">Thống kê Tổng quan</div>
-              <div>Tổng thiết bị: 2,450 | Hoạt động: 1,862 | Cần xử lý: 87</div>
+              <div>Tổng thiết bị: {totalDevs} | Hoạt động: {activeDevs} | Cần xử lý: {needRepair}</div>
             </div>
             <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
               <div className="font-medium text-white mb-2">Danh mục Top 3</div>
-              <div>PC: 980 | Network: 276 | Laptop: 210</div>
+              <div>{topCategories}</div>
             </div>
             <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
               <div className="font-medium text-white mb-2">Phòng Top 3</div>
-              <div>Phòng máy A3.302: 42 | Giảng đường A2.101: 31 | Văn phòng B1.201: 28</div>
+              <div>{topRooms}</div>
             </div>
           </CardContent>
         </Card>
@@ -94,15 +121,15 @@ export function ReportsPage() {
           <CardContent className="space-y-3 text-sm text-slate-300">
             <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
               <div className="font-medium text-white mb-2">Thống kê Ticket</div>
-              <div>Tổng: 184 | Hoàn thành: 82 | Đang xử lý: 27 | SLA: 93%</div>
+              <div>Tổng: {totalTkts} | Hoàn thành: {completedTkts} | Đang xử lý: {activeTkts}</div>
             </div>
             <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
               <div className="font-medium text-white mb-2">Thống kê Bảo trì</div>
-              <div>Kế hoạch: 42 | Đang thực hiện: 9 | Hoàn thành: 28 | Chi phí: 61.6M</div>
+              <div>Kế hoạch: {maintenanceCount} | Chi phí tích lũy: {maintenanceCost}M</div>
             </div>
             <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
-              <div className="font-medium text-white mb-2">Hiệu suất</div>
-              <div>Ticket được xử lý đúng hạn: 93% | Bảo trì đúng lịch: 88%</div>
+              <div className="font-medium text-white mb-2">Hiệu suất & Sức khỏe</div>
+              <div>Sức khỏe hệ thống: {healthRate}</div>
             </div>
           </CardContent>
         </Card>
