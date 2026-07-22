@@ -21,8 +21,8 @@ COPY --from=build /app/publish .
 
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://+:10000
 ENV DOTNET_USE_POLLING_FILE_WATCHER=true
 
-EXPOSE 8080
+EXPOSE 10000
 ENTRYPOINT ["dotnet", "backend.dll"]
