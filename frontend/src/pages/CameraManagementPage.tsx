@@ -68,7 +68,8 @@ export function CameraManagementPage() {
         warranty: v.warranty ?? '',
         note: v.note ?? ''
       })
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
     } catch (error) {
       console.error('Failed to create camera:', error)
       throw error
@@ -78,7 +79,8 @@ export function CameraManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateCamera(id, v)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
     } catch (error) {
       console.error('Failed to update camera:', error)
       throw error
@@ -88,7 +90,8 @@ export function CameraManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteCamera(id)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
     } catch (error) {
       console.error('Failed to delete camera:', error)
       throw error

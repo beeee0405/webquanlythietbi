@@ -98,7 +98,8 @@ export function InventoryManagementPage() {
         completedAt: (values as any).completedAt || '-',
         note: (values as any).note || '',
       })
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
       toast.success('Tạo đợt kiểm kê thành công')
     } catch (error) {
       console.error('Failed to create inventory:', error)
@@ -109,7 +110,8 @@ export function InventoryManagementPage() {
   const handleEdit = async (id: string, values: any) => {
     try {
       await updateInventorySession(id, values)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
       toast.success('Cập nhật đợt kiểm kê thành công')
     } catch (error) {
       console.error('Failed to update inventory:', error)
@@ -120,7 +122,8 @@ export function InventoryManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteInventorySession(id)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
       toast.success('Xóa đợt kiểm kê thành công')
     } catch (error) {
       console.error('Failed to delete inventory:', error)

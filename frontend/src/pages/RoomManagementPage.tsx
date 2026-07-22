@@ -79,7 +79,8 @@ export function RoomManagementPage() {
         capacity: v.capacity,
         note: v.note ?? ''
       })
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
     } catch (error) {
       console.error('Failed to create room:', error)
       throw error
@@ -89,7 +90,8 @@ export function RoomManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateRoom(id, v)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
     } catch (error) {
       console.error('Failed to update room:', error)
       throw error
@@ -99,7 +101,8 @@ export function RoomManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteRoom(id)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
     } catch (error) {
       console.error('Failed to delete room:', error)
       throw error

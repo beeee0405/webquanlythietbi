@@ -70,7 +70,8 @@ export function SoftwareManagementPage() {
         status: v.status,
         note: v.note ?? ''
       })
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['software-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['software-module'] })
     } catch (error) {
       console.error('Failed to create software:', error)
       throw error
@@ -80,7 +81,8 @@ export function SoftwareManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateSoftware(id, v)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['software-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['software-module'] })
     } catch (error) {
       console.error('Failed to update software:', error)
       throw error
@@ -90,7 +92,8 @@ export function SoftwareManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteSoftware(id)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['software-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['software-module'] })
     } catch (error) {
       console.error('Failed to delete software:', error)
       throw error

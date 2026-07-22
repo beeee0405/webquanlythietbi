@@ -103,7 +103,8 @@ export function MaintenancePage() {
         cost: v.cost ?? '0',
         note: v.note ?? ''
       })
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
     } catch (error) {
       console.error('Failed to create maintenance:', error)
       throw error
@@ -113,7 +114,8 @@ export function MaintenancePage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateMaintenance(id, v)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
     } catch (error) {
       console.error('Failed to update maintenance:', error)
       throw error
@@ -123,7 +125,8 @@ export function MaintenancePage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteMaintenance(id)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
     } catch (error) {
       console.error('Failed to delete maintenance:', error)
       throw error

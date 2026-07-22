@@ -73,7 +73,8 @@ export function NetworkManagementPage() {
         installedAt: v.installedAt ?? today(),
         note: v.note ?? ''
       })
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['network-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['network-module'] })
     } catch (error) {
       console.error('Failed to create network device:', error)
       throw error
@@ -83,7 +84,8 @@ export function NetworkManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateNetworkDevice(id, v)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['network-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['network-module'] })
     } catch (error) {
       console.error('Failed to update network device:', error)
       throw error
@@ -93,7 +95,8 @@ export function NetworkManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteNetworkDevice(id)
-      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['network-module'] })
+      setLocalItems(null)
+      queryClient.invalidateQueries({ queryKey: ['network-module'] })
     } catch (error) {
       console.error('Failed to delete network device:', error)
       throw error
