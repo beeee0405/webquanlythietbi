@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = 'https://webquanlythietbi.onrender.com/api'
+const baseURL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5016/api' : 'https://webquanlythietbi.onrender.com/api')
 
 export const http = axios.create({
   baseURL,

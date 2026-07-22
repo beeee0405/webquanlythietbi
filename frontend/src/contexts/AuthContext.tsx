@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { UserInfoDto } from '../types/auth'
+import { http } from '../services/http'
 
 interface AuthContextType {
   user: UserInfoDto | null
@@ -28,15 +29,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('http://localhost:5016/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      })
-
-      if (!response.ok) return false
-
-      const data = await response.json()
+      const response = await http.post('/auth/login', { username, password })
+      const data = response.data
       setUser(data.user)
       setAccessToken(data.accessToken)
       localStorage.setItem('auth_user', JSON.stringify(data.user))
@@ -59,15 +53,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     room: string
   ): Promise<boolean> => {
     try {
-      const response = await fetch('http://localhost:5016/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, fullName, phone, department, room })
+      const response = await http.post('/auth/register', {
+        username,
+        email,
+        password,
+        fullName,
+        phone,
+        department,
+        room
       })
-
-      if (!response.ok) return false
-
-      const data = await response.json()
+      const data = response.data
       setUser(data.user)
       setAccessToken(data.accessToken)
       localStorage.setItem('auth_user', JSON.stringify(data.user))
