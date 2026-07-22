@@ -100,7 +100,7 @@ export function TransferManagementPage() {
         approvedAt: (values as any).approvedAt || '-',
         note: (values as any).note || '',
       })
-      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
       toast.success('Tạo yêu cầu điều chuyển thành công')
     } catch (error) {
       console.error('Failed to create transfer:', error)
@@ -111,7 +111,7 @@ export function TransferManagementPage() {
   const handleEdit = async (id: string, values: any) => {
     try {
       await updateTransfer(id, values)
-      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
       toast.success('Cập nhật yêu cầu điều chuyển thành công')
     } catch (error) {
       console.error('Failed to update transfer:', error)
@@ -122,7 +122,7 @@ export function TransferManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteTransfer(id)
-      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
       toast.success('Xóa yêu cầu điều chuyển thành công')
     } catch (error) {
       console.error('Failed to delete transfer:', error)

@@ -90,6 +90,7 @@ export function UserManagementPage() {
         role: v.role,
         status: v.status
       })
+      setLocalItems(null) // Clear local state to force refetch
       queryClient.invalidateQueries({ queryKey: ['users-module'] })
     } catch (error) {
       console.error('Failed to create user:', error)
@@ -100,6 +101,7 @@ export function UserManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateUser(id, v)
+      setLocalItems(null) // Clear local state to force refetch
       queryClient.invalidateQueries({ queryKey: ['users-module'] })
     } catch (error) {
       console.error('Failed to update user:', error)
@@ -110,6 +112,7 @@ export function UserManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteUser(id)
+      setLocalItems(null) // Clear local state to force refetch
       queryClient.invalidateQueries({ queryKey: ['users-module'] })
     } catch (error) {
       console.error('Failed to delete user:', error)

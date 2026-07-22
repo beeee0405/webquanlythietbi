@@ -102,7 +102,7 @@ export function LiquidationManagementPage() {
         completedAt: (values as any).completedAt || '-',
         note: (values as any).note || '',
       })
-      queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
+      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
       toast.success('Tạo yêu cầu thanh lý thành công')
     } catch (error) {
       console.error('Failed to create liquidation:', error)
@@ -113,7 +113,7 @@ export function LiquidationManagementPage() {
   const handleEdit = async (id: string, values: any) => {
     try {
       await updateLiquidation(id, values)
-      queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
+      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
       toast.success('Cập nhật yêu cầu thanh lý thành công')
     } catch (error) {
       console.error('Failed to update liquidation:', error)
@@ -124,7 +124,7 @@ export function LiquidationManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteLiquidation(id)
-      queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
+      setLocalItems(null)`n queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
       toast.success('Xóa yêu cầu thanh lý thành công')
     } catch (error) {
       console.error('Failed to delete liquidation:', error)

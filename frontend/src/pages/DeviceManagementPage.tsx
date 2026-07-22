@@ -96,6 +96,7 @@ export function DeviceManagementPage() {
         warranty: (values as any).warranty,
         serial: (values as any).serial ?? '',
       })
+      setLocalItems(null)
       queryClient.invalidateQueries({ queryKey: ['devices-module'] })
     } catch (error) {
       console.error('Failed to create device:', error)
@@ -106,6 +107,7 @@ export function DeviceManagementPage() {
   const handleEdit = async (id: string, values: any) => {
     try {
       await updateDevice(id, values)
+      setLocalItems(null)
       queryClient.invalidateQueries({ queryKey: ['devices-module'] })
     } catch (error) {
       console.error('Failed to update device:', error)
@@ -116,6 +118,7 @@ export function DeviceManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteDevice(id)
+      setLocalItems(null)
       queryClient.invalidateQueries({ queryKey: ['devices-module'] })
     } catch (error) {
       console.error('Failed to delete device:', error)
