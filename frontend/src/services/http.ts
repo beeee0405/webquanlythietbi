@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = 'https://webquanlythietbi-1.onrender.com/api'
+const baseURL = 'https://webquanlythietbi.onrender.com/api'
 
 export const http = axios.create({
   baseURL,
