@@ -13,6 +13,10 @@ RUN dotnet publish "backend.csproj" -c Release -o /app/publish /p:PublishTrimmed
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
 WORKDIR /app
+
+# Create data directory for SQLite
+RUN mkdir -p /app/data
+
 COPY --from=build /app/publish .
 
 # Set environment variables
