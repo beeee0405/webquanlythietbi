@@ -1,5 +1,5 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
 # Copy csproj
@@ -8,16 +8,12 @@ RUN dotnet restore "backend.csproj"
 
 # Copy source code
 COPY . .
-RUN dotnet build "backend.csproj" -c Release -o /app/build
-
-# Publish stage
-FROM build AS publish
-RUN dotnet publish "backend.csproj" -c Release -o /app/publish
+RUN dotnet publish "backend.csproj" -c Release -o /app/publish /p:PublishTrimmed=false
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Production
