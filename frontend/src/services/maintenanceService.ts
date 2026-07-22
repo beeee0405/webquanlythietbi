@@ -43,3 +43,16 @@ export async function getMaintenanceData(): Promise<MaintenanceApiData> {
     return fallback
   }
 }
+
+export async function createMaintenance(item: any): Promise<any> {
+  const response = await http.post('/maintenance', item)
+  return response.data
+}
+
+export async function updateMaintenance(id: string, item: any): Promise<void> {
+  await http.put(`/maintenance/${id}`, item)
+}
+
+export async function deleteMaintenance(id: string): Promise<void> {
+  await http.delete(`/maintenance/${id}`)
+}

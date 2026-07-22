@@ -18,7 +18,7 @@ import {
   userRoles,
   userStatuses,
 } from '../data/users'
-import { getUserData } from '../services/userService'
+import { getUserData, createUser, updateUser, deleteUser } from '../services/userService'
 import type { UserItem, UserRole, UserStatus } from '../types/user'
 import { usePermission } from '../hooks/usePermission'
 
@@ -77,12 +77,45 @@ export function UserManagementPage() {
   const openEdit = (u: UserItem) => { setDialogMode('edit'); setSelected(u); setDialogOpen(true) }
   const openDelete = (u: UserItem) => { setDialogMode('delete'); setSelected(u); setDialogOpen(true) }
 
-  const handleAdd = (v: any) => {
-    setLocalItems(prev => [{ id: genId(), fullName: v.fullName, email: v.email, phone: v.phone ?? '', department: v.department, room: v.room ?? '', role: v.role, status: v.status, createdAt: today(), lastLogin: '' }, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['users-module'] })
+  const handleAdd = async (v: any) => {
+    try {
+      await createUser({
+        fullName: v.fullName,
+        email: v.email,
+        username: v.username,
+        password: v.password,
+        phone: v.phone ?? '',
+        department: v.department,
+        room: v.room ?? '',
+        role: v.role,
+        status: v.status
+      })
+      queryClient.invalidateQueries({ queryKey: ['users-module'] })
+    } catch (error) {
+      console.error('Failed to create user:', error)
+      throw error
+    }
   }
-  const handleEdit = (id: string, v: any) => { setLocalItems(prev => (prev ?? serverItems).map(u => u.id === id ? { ...u, ...v } : u)); queryClient.invalidateQueries({ queryKey: ['users-module'] }) }
-  const handleDelete = (id: string) => { setLocalItems(prev => (prev ?? serverItems).filter(u => u.id !== id)); queryClient.invalidateQueries({ queryKey: ['users-module'] }) }
+  
+  const handleEdit = async (id: string, v: any) => {
+    try {
+      await updateUser(id, v)
+      queryClient.invalidateQueries({ queryKey: ['users-module'] })
+    } catch (error) {
+      console.error('Failed to update user:', error)
+      throw error
+    }
+  }
+  
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteUser(id)
+      queryClient.invalidateQueries({ queryKey: ['users-module'] })
+    } catch (error) {
+      console.error('Failed to delete user:', error)
+      throw error
+    }
+  }
 
   const activeCount = filteredItems.filter(i => i.status === 'Đang hoạt động').length
   const onLeaveCount = filteredItems.filter(i => i.status === 'Nghỉ phép').length

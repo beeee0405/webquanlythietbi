@@ -13,7 +13,7 @@ import { DataTable } from '../components/dashboard/DataTable'
 import { DeviceDialog } from '../components/devices/DeviceDialog'
 import { deviceOverview, deviceLocationData, deviceStatusData, deviceStatuses } from '../data/devices'
 import type { DeviceItem, DeviceStatus } from '../types/device'
-import { getDeviceData } from '../services/deviceService'
+import { getDeviceData, createDevice, updateDevice, deleteDevice } from '../services/deviceService'
 import { usePermission } from '../hooks/usePermission'
 
 function statusTone(status: DeviceStatus) {
@@ -83,33 +83,44 @@ export function DeviceManagementPage() {
   const openEdit = (device: DeviceItem) => { setDialogMode('edit'); setSelected(device); setDialogOpen(true) }
   const openDelete = (device: DeviceItem) => { setDialogMode('delete'); setSelected(device); setDialogOpen(true) }
 
-  const handleAdd = (values: Parameters<typeof DeviceDialog>[0] extends { onAdd?: (v: infer V) => void } ? V : never) => {
-    const newItem: DeviceItem = {
-      id: genId(),
-      assetCode: (values as any).assetCode,
-      name: (values as any).name,
-      category: (values as any).category,
-      brand: (values as any).brand,
-      room: (values as any).room,
-      owner: (values as any).owner,
-      status: (values as any).status,
-      warranty: (values as any).warranty,
-      serial: (values as any).serial ?? '',
-      purchasedAt: today(),
-      updatedAt: today(),
+  const handleAdd = async (values: Parameters<typeof DeviceDialog>[0] extends { onAdd?: (v: infer V) => void } ? V : never) => {
+    try {
+      await createDevice({
+        assetCode: (values as any).assetCode,
+        name: (values as any).name,
+        category: (values as any).category,
+        brand: (values as any).brand,
+        room: (values as any).room,
+        owner: (values as any).owner,
+        status: (values as any).status,
+        warranty: (values as any).warranty,
+        serial: (values as any).serial ?? '',
+      })
+      queryClient.invalidateQueries({ queryKey: ['devices-module'] })
+    } catch (error) {
+      console.error('Failed to create device:', error)
+      throw error
     }
-    setLocalItems(prev => [newItem, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['devices-module'] })
   }
 
-  const handleEdit = (id: string, values: any) => {
-    setLocalItems(prev => (prev ?? serverItems).map(d => d.id === id ? { ...d, ...values, updatedAt: today() } : d))
-    queryClient.invalidateQueries({ queryKey: ['devices-module'] })
+  const handleEdit = async (id: string, values: any) => {
+    try {
+      await updateDevice(id, values)
+      queryClient.invalidateQueries({ queryKey: ['devices-module'] })
+    } catch (error) {
+      console.error('Failed to update device:', error)
+      throw error
+    }
   }
 
-  const handleDelete = (id: string) => {
-    setLocalItems(prev => (prev ?? serverItems).filter(d => d.id !== id))
-    queryClient.invalidateQueries({ queryKey: ['devices-module'] })
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteDevice(id)
+      queryClient.invalidateQueries({ queryKey: ['devices-module'] })
+    } catch (error) {
+      console.error('Failed to delete device:', error)
+      throw error
+    }
   }
 
   const activeCount = filteredItems.filter(i => i.status === 'Hoạt động').length
