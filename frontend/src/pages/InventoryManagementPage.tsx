@@ -17,7 +17,7 @@ import {
   inventoryStatusData,
   inventoryStatuses,
 } from '../data/inventory'
-import { getInventoryData } from '../services/inventoryService'
+import { getInventoryData, createInventorySession, updateInventorySession, deleteInventorySession } from '../services/inventoryService'
 import { usePermission } from '../hooks/usePermission'
 import type { InventorySession, InventoryStatus } from '../types/inventory'
 
@@ -83,36 +83,49 @@ export function InventoryManagementPage() {
   const openEdit = (session: InventorySession) => { setDialogMode('edit'); setSelected(session); setDialogOpen(true) }
   const openDelete = (session: InventorySession) => { setDialogMode('delete'); setSelected(session); setDialogOpen(true) }
 
-  const handleAdd = (values: any) => {
-    const newItem: InventorySession = {
-      id: genId(),
-      code: (values as any).code || `INV-${Date.now()}`,
-      room: (values as any).room,
-      inspector: (values as any).inspector,
-      totalDevices: (values as any).totalDevices || '0',
-      checkedDevices: (values as any).checkedDevices || '0',
-      missingDevices: (values as any).missingDevices || '0',
-      extraDevices: (values as any).extraDevices || '0',
-      status: (values as any).status || 'Đang kiểm',
-      startedAt: (values as any).startedAt || new Date().toISOString().split('T')[0],
-      completedAt: (values as any).completedAt || '-',
-      note: (values as any).note || '',
+  const handleAdd = async (values: any) => {
+    try {
+      await createInventorySession({
+        code: (values as any).code || `INV-${Date.now()}`,
+        room: (values as any).room,
+        inspector: (values as any).inspector,
+        totalDevices: (values as any).totalDevices || '0',
+        checkedDevices: (values as any).checkedDevices || '0',
+        missingDevices: (values as any).missingDevices || '0',
+        extraDevices: (values as any).extraDevices || '0',
+        status: (values as any).status || 'Đang kiểm',
+        startedAt: (values as any).startedAt || new Date().toISOString().split('T')[0],
+        completedAt: (values as any).completedAt || '-',
+        note: (values as any).note || '',
+      })
+      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      toast.success('Tạo đợt kiểm kê thành công')
+    } catch (error) {
+      console.error('Failed to create inventory:', error)
+      throw error
     }
-    setLocalItems(prev => [newItem, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
-    toast.success('Tạo đợt kiểm kê thành công')
   }
 
-  const handleEdit = (id: string, values: any) => {
-    setLocalItems(prev => (prev ?? serverItems).map(i => i.id === id ? { ...i, ...values } : i))
-    queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
-    toast.success('Cập nhật đợt kiểm kê thành công')
+  const handleEdit = async (id: string, values: any) => {
+    try {
+      await updateInventorySession(id, values)
+      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      toast.success('Cập nhật đợt kiểm kê thành công')
+    } catch (error) {
+      console.error('Failed to update inventory:', error)
+      throw error
+    }
   }
 
-  const handleDelete = (id: string) => {
-    setLocalItems(prev => (prev ?? serverItems).filter(i => i.id !== id))
-    queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
-    toast.success('Xóa đợt kiểm kê thành công')
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteInventorySession(id)
+      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      toast.success('Xóa đợt kiểm kê thành công')
+    } catch (error) {
+      console.error('Failed to delete inventory:', error)
+      throw error
+    }
   }
 
   return (

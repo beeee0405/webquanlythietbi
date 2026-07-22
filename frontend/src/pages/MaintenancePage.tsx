@@ -12,7 +12,7 @@ import { Button } from '../components/ui/button'
 import { MaintenanceDialog } from '../components/maintenance/MaintenanceDialog'
 import { maintenanceBudgetData, maintenanceOverview, maintenancePriorities, maintenanceQueue, maintenanceStatuses, maintenanceStatusData, maintenanceTrendData, maintenanceTypes, maintenanceTypeData } from '../data/maintenance'
 import type { MaintenanceItem, MaintenancePriority, MaintenanceStatus, MaintenanceType } from '../types/maintenance'
-import { getMaintenanceData } from '../services/maintenanceService'
+import { getMaintenanceData, createMaintenance, updateMaintenance, deleteMaintenance } from '../services/maintenanceService'
 import { usePermission } from '../hooks/usePermission'
 
 function priorityTone(p: MaintenancePriority) {
@@ -88,18 +88,46 @@ export function MaintenancePage() {
   const openEdit = (i: MaintenanceItem) => { setDialogMode('edit'); setSelected(i); setDialogOpen(true) }
   const openDelete = (i: MaintenanceItem) => { setDialogMode('delete'); setSelected(i); setDialogOpen(true) }
 
-  const handleAdd = (v: any) => {
-    const newItem: MaintenanceItem = { id: genId(), code: genCode(), title: v.title, assetCode: v.assetCode, assetName: v.assetName, room: v.room, type: v.type, priority: v.priority, status: v.status, assignee: v.assignee, scheduledAt: v.scheduledAt, completedAt: '', cost: v.cost ?? '0', note: v.note ?? '' }
-    setLocalItems(prev => [newItem, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+  const handleAdd = async (v: any) => {
+    try {
+      await createMaintenance({
+        title: v.title,
+        assetCode: v.assetCode,
+        assetName: v.assetName,
+        room: v.room,
+        type: v.type,
+        priority: v.priority,
+        status: v.status,
+        assignee: v.assignee,
+        scheduledAt: v.scheduledAt,
+        cost: v.cost ?? '0',
+        note: v.note ?? ''
+      })
+      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+    } catch (error) {
+      console.error('Failed to create maintenance:', error)
+      throw error
+    }
   }
-  const handleEdit = (id: string, v: any) => {
-    setLocalItems(prev => (prev ?? serverItems).map(i => i.id === id ? { ...i, ...v } : i))
-    queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+  
+  const handleEdit = async (id: string, v: any) => {
+    try {
+      await updateMaintenance(id, v)
+      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+    } catch (error) {
+      console.error('Failed to update maintenance:', error)
+      throw error
+    }
   }
-  const handleDelete = (id: string) => {
-    setLocalItems(prev => (prev ?? serverItems).filter(i => i.id !== id))
-    queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+  
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteMaintenance(id)
+      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+    } catch (error) {
+      console.error('Failed to delete maintenance:', error)
+      throw error
+    }
   }
 
   const dueSoonCount = items.filter(i => i.status !== 'Hoàn thành').length

@@ -11,7 +11,7 @@ import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { SoftwareDialog } from '../components/software/SoftwareDialog'
 import { softwareCategoryData, softwareCategories, softwareLicenseTypeData, softwareOverview, softwareQueue, softwareStatuses } from '../data/software'
-import { getSoftwareData } from '../services/softwareService'
+import { getSoftwareData, createSoftware, updateSoftware, deleteSoftware } from '../services/softwareService'
 import type { SoftwareItem, SoftwareStatus, SoftwareCategory } from '../types/software'
 import { usePermission } from '../hooks/usePermission'
 
@@ -54,12 +54,48 @@ export function SoftwareManagementPage() {
   const openEdit = (s: SoftwareItem) => { setDialogMode('edit'); setSelected(s); setDialogOpen(true) }
   const openDelete = (s: SoftwareItem) => { setDialogMode('delete'); setSelected(s); setDialogOpen(true) }
 
-  const handleAdd = (v: any) => {
-    setLocalItems(prev => [{ id: genId(), name: v.name, publisher: v.publisher, version: v.version ?? '', category: v.category, licenseType: v.licenseType, licenseKey: v.licenseKey ?? '', totalLicenses: v.totalLicenses, usedLicenses: v.usedLicenses ?? '0', expiresAt: v.expiresAt ?? '', room: v.room ?? '', status: v.status, note: v.note ?? '' }, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['software-module'] })
+  const handleAdd = async (v: any) => {
+    try {
+      await createSoftware({
+        name: v.name,
+        publisher: v.publisher,
+        version: v.version ?? '',
+        category: v.category,
+        licenseType: v.licenseType,
+        licenseKey: v.licenseKey ?? '',
+        totalLicenses: v.totalLicenses,
+        usedLicenses: v.usedLicenses ?? '0',
+        expiresAt: v.expiresAt ?? '',
+        room: v.room ?? '',
+        status: v.status,
+        note: v.note ?? ''
+      })
+      queryClient.invalidateQueries({ queryKey: ['software-module'] })
+    } catch (error) {
+      console.error('Failed to create software:', error)
+      throw error
+    }
   }
-  const handleEdit = (id: string, v: any) => { setLocalItems(prev => (prev ?? serverItems).map(s => s.id === id ? { ...s, ...v } : s)); queryClient.invalidateQueries({ queryKey: ['software-module'] }) }
-  const handleDelete = (id: string) => { setLocalItems(prev => (prev ?? serverItems).filter(s => s.id !== id)); queryClient.invalidateQueries({ queryKey: ['software-module'] }) }
+  
+  const handleEdit = async (id: string, v: any) => {
+    try {
+      await updateSoftware(id, v)
+      queryClient.invalidateQueries({ queryKey: ['software-module'] })
+    } catch (error) {
+      console.error('Failed to update software:', error)
+      throw error
+    }
+  }
+  
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteSoftware(id)
+      queryClient.invalidateQueries({ queryKey: ['software-module'] })
+    } catch (error) {
+      console.error('Failed to delete software:', error)
+      throw error
+    }
+  }
 
   return (
     <div className="space-y-6">

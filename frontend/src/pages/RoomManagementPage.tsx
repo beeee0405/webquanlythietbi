@@ -11,7 +11,7 @@ import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { RoomDialog } from '../components/rooms/RoomDialog'
 import { roomBuildingData, roomBuildings, roomOverview, roomQueue, roomStatusData, roomStatuses, roomTypeData, roomTypes } from '../data/rooms'
-import { getRoomData } from '../services/roomService'
+import { getRoomData, createRoom, updateRoom, deleteRoom } from '../services/roomService'
 import type { RoomItem, RoomStatus, RoomType } from '../types/room'
 import { usePermission } from '../hooks/usePermission'
 
@@ -66,18 +66,44 @@ export function RoomManagementPage() {
   const openEdit = (r: RoomItem) => { setDialogMode('edit'); setSelected(r); setDialogOpen(true) }
   const openDelete = (r: RoomItem) => { setDialogMode('delete'); setSelected(r); setDialogOpen(true) }
 
-  const handleAdd = (v: any) => {
-    const newItem: RoomItem = { id: genId(), code: v.code, name: v.name, building: v.building, floor: v.floor, type: v.type, status: v.status, manager: v.manager, capacity: v.capacity, deviceCount: 0, activeTickets: 0, lastInventoryAt: today(), note: v.note ?? '' }
-    setLocalItems(prev => [newItem, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+  const handleAdd = async (v: any) => {
+    try {
+      await createRoom({
+        code: v.code,
+        name: v.name,
+        building: v.building,
+        floor: v.floor,
+        type: v.type,
+        status: v.status,
+        manager: v.manager,
+        capacity: v.capacity,
+        note: v.note ?? ''
+      })
+      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+    } catch (error) {
+      console.error('Failed to create room:', error)
+      throw error
+    }
   }
-  const handleEdit = (id: string, v: any) => {
-    setLocalItems(prev => (prev ?? serverItems).map(r => r.id === id ? { ...r, ...v } : r))
-    queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+  
+  const handleEdit = async (id: string, v: any) => {
+    try {
+      await updateRoom(id, v)
+      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+    } catch (error) {
+      console.error('Failed to update room:', error)
+      throw error
+    }
   }
-  const handleDelete = (id: string) => {
-    setLocalItems(prev => (prev ?? serverItems).filter(r => r.id !== id))
-    queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+  
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteRoom(id)
+      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+    } catch (error) {
+      console.error('Failed to delete room:', error)
+      throw error
+    }
   }
 
   const totalDevices = filteredItems.reduce((s, r) => s + r.deviceCount, 0)

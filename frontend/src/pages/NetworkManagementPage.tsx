@@ -11,7 +11,7 @@ import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { NetworkDialog } from '../components/network/NetworkDialog'
 import { networkOverview, networkQueue, networkStatusData, networkStatuses, networkTypeData, networkTypes } from '../data/network'
-import { getNetworkData } from '../services/networkService'
+import { getNetworkData, createNetworkDevice, updateNetworkDevice, deleteNetworkDevice } from '../services/networkService'
 import type { NetworkItem, NetworkStatus, NetworkType } from '../types/network'
 import { usePermission } from '../hooks/usePermission'
 
@@ -55,12 +55,50 @@ export function NetworkManagementPage() {
   const openEdit = (d: NetworkItem) => { setDialogMode('edit'); setSelected(d); setDialogOpen(true) }
   const openDelete = (d: NetworkItem) => { setDialogMode('delete'); setSelected(d); setDialogOpen(true) }
 
-  const handleAdd = (v: any) => {
-    setLocalItems(prev => [{ id: genId(), code: v.code, name: v.name, type: v.type, brand: v.brand, model: v.model ?? '', room: v.room, ipAddress: v.ipAddress, macAddress: v.macAddress ?? '', vlan: v.vlan ?? '', port: v.port ?? '', status: v.status, warranty: v.warranty ?? '', installedAt: v.installedAt ?? today(), note: v.note ?? '' }, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['network-module'] })
+  const handleAdd = async (v: any) => {
+    try {
+      await createNetworkDevice({
+        code: v.code,
+        name: v.name,
+        type: v.type,
+        brand: v.brand,
+        model: v.model ?? '',
+        room: v.room,
+        ipAddress: v.ipAddress,
+        macAddress: v.macAddress ?? '',
+        vlan: v.vlan ?? '',
+        port: v.port ?? '',
+        status: v.status,
+        warranty: v.warranty ?? '',
+        installedAt: v.installedAt ?? today(),
+        note: v.note ?? ''
+      })
+      queryClient.invalidateQueries({ queryKey: ['network-module'] })
+    } catch (error) {
+      console.error('Failed to create network device:', error)
+      throw error
+    }
   }
-  const handleEdit = (id: string, v: any) => { setLocalItems(prev => (prev ?? serverItems).map(d => d.id === id ? { ...d, ...v } : d)); queryClient.invalidateQueries({ queryKey: ['network-module'] }) }
-  const handleDelete = (id: string) => { setLocalItems(prev => (prev ?? serverItems).filter(d => d.id !== id)); queryClient.invalidateQueries({ queryKey: ['network-module'] }) }
+  
+  const handleEdit = async (id: string, v: any) => {
+    try {
+      await updateNetworkDevice(id, v)
+      queryClient.invalidateQueries({ queryKey: ['network-module'] })
+    } catch (error) {
+      console.error('Failed to update network device:', error)
+      throw error
+    }
+  }
+  
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteNetworkDevice(id)
+      queryClient.invalidateQueries({ queryKey: ['network-module'] })
+    } catch (error) {
+      console.error('Failed to delete network device:', error)
+      throw error
+    }
+  }
 
   return (
     <div className="space-y-6">

@@ -18,7 +18,7 @@ import {
   liquidationStatusData,
   liquidationStatuses,
 } from '../data/liquidation'
-import { getLiquidationData } from '../services/liquidationService'
+import { getLiquidationData, createLiquidation, updateLiquidation, deleteLiquidation } from '../services/liquidationService'
 import { usePermission } from '../hooks/usePermission'
 import type { LiquidationItem, LiquidationStatus } from '../types/liquidation'
 
@@ -85,38 +85,51 @@ export function LiquidationManagementPage() {
   const openEdit = (item: LiquidationItem) => { setDialogMode('edit'); setSelected(item); setDialogOpen(true) }
   const openDelete = (item: LiquidationItem) => { setDialogMode('delete'); setSelected(item); setDialogOpen(true) }
 
-  const handleAdd = (values: any) => {
-    const newItem: LiquidationItem = {
-      id: genId(),
-      code: (values as any).code || `LIQ-${Date.now()}`,
-      assetCode: (values as any).assetCode,
-      assetName: (values as any).assetName,
-      condition: (values as any).condition,
-      residualValue: (values as any).residualValue,
-      requester: (values as any).requester,
-      room: (values as any).room,
-      status: (values as any).status || 'Chờ duyệt',
-      reason: (values as any).reason || '',
-      approver: (values as any).approver || '-',
-      requestedAt: (values as any).requestedAt || new Date().toISOString().split('T')[0],
-      completedAt: (values as any).completedAt || '-',
-      note: (values as any).note || '',
+  const handleAdd = async (values: any) => {
+    try {
+      await createLiquidation({
+        code: (values as any).code || `LIQ-${Date.now()}`,
+        assetCode: (values as any).assetCode,
+        assetName: (values as any).assetName,
+        condition: (values as any).condition,
+        residualValue: (values as any).residualValue,
+        requester: (values as any).requester,
+        room: (values as any).room,
+        status: (values as any).status || 'Chờ duyệt',
+        reason: (values as any).reason || '',
+        approver: (values as any).approver || '-',
+        requestedAt: (values as any).requestedAt || new Date().toISOString().split('T')[0],
+        completedAt: (values as any).completedAt || '-',
+        note: (values as any).note || '',
+      })
+      queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
+      toast.success('Tạo yêu cầu thanh lý thành công')
+    } catch (error) {
+      console.error('Failed to create liquidation:', error)
+      throw error
     }
-    setLocalItems(prev => [newItem, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
-    toast.success('Tạo yêu cầu thanh lý thành công')
   }
 
-  const handleEdit = (id: string, values: any) => {
-    setLocalItems(prev => (prev ?? serverItems).map(i => i.id === id ? { ...i, ...values } : i))
-    queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
-    toast.success('Cập nhật yêu cầu thanh lý thành công')
+  const handleEdit = async (id: string, values: any) => {
+    try {
+      await updateLiquidation(id, values)
+      queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
+      toast.success('Cập nhật yêu cầu thanh lý thành công')
+    } catch (error) {
+      console.error('Failed to update liquidation:', error)
+      throw error
+    }
   }
 
-  const handleDelete = (id: string) => {
-    setLocalItems(prev => (prev ?? serverItems).filter(i => i.id !== id))
-    queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
-    toast.success('Xóa yêu cầu thanh lý thành công')
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteLiquidation(id)
+      queryClient.invalidateQueries({ queryKey: ['liquidation-module'] })
+      toast.success('Xóa yêu cầu thanh lý thành công')
+    } catch (error) {
+      console.error('Failed to delete liquidation:', error)
+      throw error
+    }
   }
 
   return (

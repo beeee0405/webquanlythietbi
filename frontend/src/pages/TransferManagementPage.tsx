@@ -17,7 +17,7 @@ import {
   transferStatusData,
   transferStatuses,
 } from '../data/transfer'
-import { getTransferData } from '../services/transferService'
+import { getTransferData, createTransfer, updateTransfer, deleteTransfer } from '../services/transferService'
 import { usePermission } from '../hooks/usePermission'
 import type { TransferItem, TransferStatus } from '../types/transfer'
 
@@ -85,36 +85,49 @@ export function TransferManagementPage() {
   const openEdit = (transfer: TransferItem) => { setDialogMode('edit'); setSelected(transfer); setDialogOpen(true) }
   const openDelete = (transfer: TransferItem) => { setDialogMode('delete'); setSelected(transfer); setDialogOpen(true) }
 
-  const handleAdd = (values: any) => {
-    const newItem: TransferItem = {
-      id: genId(),
-      code: (values as any).code || `TRF-${Date.now()}`,
-      assetCode: (values as any).assetCode,
-      assetName: (values as any).assetName,
-      fromRoom: (values as any).fromRoom,
-      toRoom: (values as any).toRoom,
-      requester: (values as any).requester,
-      approver: (values as any).approver || '-',
-      status: (values as any).status || 'Chờ duyệt',
-      transferredAt: (values as any).transferredAt || new Date().toISOString().split('T')[0],
-      approvedAt: (values as any).approvedAt || '-',
-      note: (values as any).note || '',
+  const handleAdd = async (values: any) => {
+    try {
+      await createTransfer({
+        code: (values as any).code || `TRF-${Date.now()}`,
+        assetCode: (values as any).assetCode,
+        assetName: (values as any).assetName,
+        fromRoom: (values as any).fromRoom,
+        toRoom: (values as any).toRoom,
+        requester: (values as any).requester,
+        approver: (values as any).approver || '-',
+        status: (values as any).status || 'Chờ duyệt',
+        transferredAt: (values as any).transferredAt || new Date().toISOString().split('T')[0],
+        approvedAt: (values as any).approvedAt || '-',
+        note: (values as any).note || '',
+      })
+      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      toast.success('Tạo yêu cầu điều chuyển thành công')
+    } catch (error) {
+      console.error('Failed to create transfer:', error)
+      throw error
     }
-    setLocalItems(prev => [newItem, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
-    toast.success('Tạo yêu cầu điều chuyển thành công')
   }
 
-  const handleEdit = (id: string, values: any) => {
-    setLocalItems(prev => (prev ?? serverItems).map(i => i.id === id ? { ...i, ...values } : i))
-    queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
-    toast.success('Cập nhật yêu cầu điều chuyển thành công')
+  const handleEdit = async (id: string, values: any) => {
+    try {
+      await updateTransfer(id, values)
+      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      toast.success('Cập nhật yêu cầu điều chuyển thành công')
+    } catch (error) {
+      console.error('Failed to update transfer:', error)
+      throw error
+    }
   }
 
-  const handleDelete = (id: string) => {
-    setLocalItems(prev => (prev ?? serverItems).filter(i => i.id !== id))
-    queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
-    toast.success('Xóa yêu cầu điều chuyển thành công')
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTransfer(id)
+      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      toast.success('Xóa yêu cầu điều chuyển thành công')
+    } catch (error) {
+      console.error('Failed to delete transfer:', error)
+      throw error
+    }
   }
 
   return (

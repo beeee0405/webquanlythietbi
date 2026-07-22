@@ -11,7 +11,7 @@ import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { CameraDialog } from '../components/cameras/CameraDialog'
 import { cameraOverview, cameraQueue, cameraRoomLoad, cameraStatusData, cameraStatuses } from '../data/cameras'
-import { getCameraData } from '../services/cameraService'
+import { getCameraData, createCamera, updateCamera, deleteCamera } from '../services/cameraService'
 import type { CameraItem, CameraStatus } from '../types/camera'
 import { usePermission } from '../hooks/usePermission'
 
@@ -53,12 +53,47 @@ export function CameraManagementPage() {
   const openEdit = (c: CameraItem) => { setDialogMode('edit'); setSelected(c); setDialogOpen(true) }
   const openDelete = (c: CameraItem) => { setDialogMode('delete'); setSelected(c); setDialogOpen(true) }
 
-  const handleAdd = (v: any) => {
-    setLocalItems(prev => [{ id: genId(), code: v.code, name: v.name, room: v.room, ipAddress: v.ipAddress, brand: v.brand, model: v.model ?? '', resolution: v.resolution, status: v.status, installedAt: v.installedAt ?? today(), warranty: v.warranty ?? '', note: v.note ?? '' }, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+  const handleAdd = async (v: any) => {
+    try {
+      await createCamera({
+        code: v.code,
+        name: v.name,
+        room: v.room,
+        ipAddress: v.ipAddress,
+        brand: v.brand,
+        model: v.model ?? '',
+        resolution: v.resolution,
+        status: v.status,
+        installedAt: v.installedAt ?? today(),
+        warranty: v.warranty ?? '',
+        note: v.note ?? ''
+      })
+      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+    } catch (error) {
+      console.error('Failed to create camera:', error)
+      throw error
+    }
   }
-  const handleEdit = (id: string, v: any) => { setLocalItems(prev => (prev ?? serverItems).map(c => c.id === id ? { ...c, ...v } : c)); queryClient.invalidateQueries({ queryKey: ['cameras-module'] }) }
-  const handleDelete = (id: string) => { setLocalItems(prev => (prev ?? serverItems).filter(c => c.id !== id)); queryClient.invalidateQueries({ queryKey: ['cameras-module'] }) }
+  
+  const handleEdit = async (id: string, v: any) => {
+    try {
+      await updateCamera(id, v)
+      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+    } catch (error) {
+      console.error('Failed to update camera:', error)
+      throw error
+    }
+  }
+  
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCamera(id)
+      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+    } catch (error) {
+      console.error('Failed to delete camera:', error)
+      throw error
+    }
+  }
 
   return (
     <div className="space-y-6">
