@@ -1,5 +1,5 @@
-import { Bell, Menu, Search, Sparkles, UserRound } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
+import { Bell, LogOut, Menu, Search, Sparkles, UserRound } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -8,10 +8,18 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { MobileSidebarList } from '@/components/layouts/Sidebar'
 import { titleMap } from '@/nav'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function Navbar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const currentTitle = titleMap[location.pathname] ?? 'Dashboard'
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <header className="sticky top-0 z-30 mb-6 rounded-[24px] border border-slate-800/70 bg-slate-950/70 px-4 py-3 shadow-soft backdrop-blur-xl lg:px-6">
@@ -73,14 +81,22 @@ export function Navbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="h-11 rounded-[16px] px-3">
                 <UserRound className="h-4 w-4" />
-                <span className="hidden sm:inline-flex">Nguyễn Văn Hoàng</span>
+                <span className="hidden sm:inline-flex">{user?.fullName || 'Người dùng'}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <div className="px-2 py-1.5 text-xs text-slate-400">
+                <div className="font-medium text-white">{user?.fullName}</div>
+                <div>{user?.role}</div>
+              </div>
+              <DropdownMenuSeparator />
               <DropdownMenuItem>Hồ sơ</DropdownMenuItem>
               <DropdownMenuItem>Cài đặt cá nhân</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400">
+                <LogOut className="mr-2 h-4 w-4" />
+                Đăng xuất
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

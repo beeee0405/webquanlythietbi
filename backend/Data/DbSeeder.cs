@@ -1,5 +1,7 @@
 using backend.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace backend.Data;
 
@@ -7,26 +9,37 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(AppDbContext db)
     {
-        if (await db.Devices.AnyAsync())
+        // Create admin account if it doesn't exist
+        if (!await db.IdentityUsers.AnyAsync())
         {
-            return;
-        }
+            var adminUser = new AppIdentityUser
+            {
+                Id = "admin-001",
+                Username = "admin",
+                Email = "admin@system.local",
+                FullName = "Quản trị viên",
+                Phone = "0000000000",
+                Department = "IT",
+                Room = "IT",
+                Role = "Quản trị viên",
+                Status = "Đang hoạt động",
+                IsActive = true,
+                PasswordHash = HashPassword("Admin@123"),
+                CreatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                LastLogin = ""
+            };
 
-        foreach (var device in MockStore.Devices)
+            db.IdentityUsers.Add(adminUser);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    private static string HashPassword(string password)
+    {
+        using (var sha256 = SHA256.Create())
         {
-            db.Devices.Add(EntityMapper.ToEntity(device));
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(hashedBytes);
         }
-
-        foreach (var ticket in MockStore.Tickets)
-        {
-            db.Tickets.Add(EntityMapper.ToEntity(ticket));
-        }
-
-        foreach (var item in MockStore.MaintenanceItems)
-        {
-            db.MaintenanceItems.Add(EntityMapper.ToEntity(item));
-        }
-
-        await db.SaveChangesAsync();
     }
 }

@@ -1,0 +1,34 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Node / Vite
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# .NET
+bin/
+obj/
+TestResults/
+*.dll
+*.exe
+*.pdb
+
+# Build caches
+.cache/
+.tmp/

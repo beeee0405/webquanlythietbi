@@ -19,7 +19,7 @@ export type TicketApiData = {
   channelData: typeof ticketChannelData
   slaTrendData: typeof ticketSlaTrendData
   ageBuckets: typeof ticketAgeBuckets
-  tickets: typeof ticketQueue
+  items: typeof ticketQueue
   statuses: string[]
   priorities: string[]
   channels: string[]
@@ -32,7 +32,7 @@ const fallback: TicketApiData = {
   channelData: ticketChannelData,
   slaTrendData: ticketSlaTrendData,
   ageBuckets: ticketAgeBuckets,
-  tickets: ticketQueue,
+  items: ticketQueue,
   statuses: ticketStatuses,
   priorities: ticketPriorities,
   channels: ticketChannels

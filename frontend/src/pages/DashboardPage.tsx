@@ -11,7 +11,6 @@ import {
   deviceStatusData,
   deviceTypeData,
   kpiItems,
-  maintenanceCostData,
   maintenanceTrendData,
   recentDevices,
   recentTickets,

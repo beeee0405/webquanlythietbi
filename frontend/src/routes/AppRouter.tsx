@@ -1,31 +1,104 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import { AppShell } from '../components/layouts/AppShell'
+import { ProtectedRoute } from '../components/ProtectedRoute'
+import { LoginPage } from '../pages/LoginPage'
 import { DashboardPage } from '../pages/DashboardPage'
+import { UserPortalDashboard } from '../pages/UserPortalDashboard'
 import { DeviceManagementPage } from '../pages/DeviceManagementPage'
 import { TicketManagementPage } from '../pages/TicketManagementPage'
 import { MaintenancePage } from '../pages/MaintenancePage'
-import { ModulePage } from '../pages/ModulePage'
+import { RoomManagementPage } from '../pages/RoomManagementPage'
+import { CameraManagementPage } from '../pages/CameraManagementPage'
+import { NetworkManagementPage } from '../pages/NetworkManagementPage'
+import { InventoryManagementPage } from '../pages/InventoryManagementPage'
+import { TransferManagementPage } from '../pages/TransferManagementPage'
+import { LiquidationManagementPage } from '../pages/LiquidationManagementPage'
+import { SoftwareManagementPage } from '../pages/SoftwareManagementPage'
+import { UserManagementPage } from '../pages/UserManagementPage'
+import { ReportsPage } from '../pages/ReportsPage'
+import { SettingsPage } from '../pages/SettingsPage'
 
-export function AppRouter() {
+// Role-based routing component
+function AdminRoutes() {
   return (
     <Routes>
-      <Route element={<AppShell />}>
+      <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
         <Route index element={<DashboardPage />} />
         <Route path="devices" element={<DeviceManagementPage />} />
-        <Route path="rooms" element={<ModulePage />} />
-        <Route path="cameras" element={<ModulePage />} />
-        <Route path="network" element={<ModulePage />} />
+        <Route path="rooms" element={<RoomManagementPage />} />
+        <Route path="cameras" element={<CameraManagementPage />} />
+        <Route path="network" element={<NetworkManagementPage />} />
         <Route path="tickets" element={<TicketManagementPage />} />
         <Route path="maintenance" element={<MaintenancePage />} />
-        <Route path="inventory" element={<ModulePage />} />
-        <Route path="transfer" element={<ModulePage />} />
-        <Route path="liquidation" element={<ModulePage />} />
-        <Route path="software" element={<ModulePage />} />
-        <Route path="users" element={<ModulePage />} />
-        <Route path="reports" element={<ModulePage />} />
-        <Route path="settings" element={<ModulePage />} />
+        <Route path="inventory" element={<InventoryManagementPage />} />
+        <Route path="transfer" element={<TransferManagementPage />} />
+        <Route path="liquidation" element={<LiquidationManagementPage />} />
+        <Route path="software" element={<SoftwareManagementPage />} />
+        <Route path="users" element={<UserManagementPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
+    </Routes>
+  )
+}
+
+// Infrastructure specialist routes
+function InfrastructureRoutes() {
+  return (
+    <Routes>
+      <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
+        <Route index element={<DashboardPage />} />
+        <Route path="devices" element={<DeviceManagementPage />} />
+        <Route path="rooms" element={<RoomManagementPage />} />
+        <Route path="cameras" element={<CameraManagementPage />} />
+        <Route path="network" element={<NetworkManagementPage />} />
+        <Route path="tickets" element={<TicketManagementPage />} />
+        <Route path="maintenance" element={<MaintenancePage />} />
+        <Route path="inventory" element={<InventoryManagementPage />} />
+        <Route path="transfer" element={<TransferManagementPage />} />
+        <Route path="liquidation" element={<LiquidationManagementPage />} />
+        <Route path="software" element={<SoftwareManagementPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+      </Route>
+    </Routes>
+  )
+}
+
+// End user routes
+function EndUserRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<ProtectedRoute><UserPortalDashboard /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
+}
+
+export function AppRouter() {
+  const { user } = useAuth()
+
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      
+      {/* Role-based routing */}
+      {user?.role === 'Người dùng' ? (
+        <>
+          <Route path="/*" element={<EndUserRoutes />} />
+        </>
+      ) : user?.role === 'Chuyên viên Phòng Hạ tầng' ? (
+        <>
+          <Route path="/*" element={<InfrastructureRoutes />} />
+        </>
+      ) : user?.role === 'Quản trị viên' ? (
+        <>
+          <Route path="/*" element={<AdminRoutes />} />
+        </>
+      ) : (
+        <Route path="/*" element={<Navigate to="/login" replace />} />
+      )}
     </Routes>
   )
 }

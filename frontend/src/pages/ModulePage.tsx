@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 
 const moduleTitles: Record<string, string> = {
@@ -18,7 +18,8 @@ const moduleTitles: Record<string, string> = {
 }
 
 export function ModulePage() {
-  const { moduleName } = useParams<{ moduleName: string }>()
+  const location = useLocation()
+  const moduleName = location.pathname.split('/').filter(Boolean).at(0)
   const title = moduleName ? moduleTitles[moduleName] ?? moduleName : 'Module'
 
   return (

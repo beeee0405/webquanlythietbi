@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<Liquidation> Liquidations => Set<Liquidation>();
     public DbSet<Software> Softwares => Set<Software>();
     public DbSet<AppUser> AppUsers => Set<AppUser>();
+    public DbSet<AppIdentityUser> IdentityUsers => Set<AppIdentityUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,5 +35,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Liquidation>().ToTable("Liquidations");
         modelBuilder.Entity<Software>().ToTable("Softwares");
         modelBuilder.Entity<AppUser>().ToTable("AppUsers");
+        modelBuilder.Entity<AppIdentityUser>().ToTable("AppIdentityUsers");
     }
 }

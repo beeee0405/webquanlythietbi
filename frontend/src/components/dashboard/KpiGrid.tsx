@@ -4,6 +4,8 @@ import { Card } from '../ui/card'
 import { cn } from '../../lib/cn'
 import type { KPIItem } from '../../types/dashboard'
 
+const toneOrder = ['primary', 'emerald', 'amber', 'zinc'] as const
+
 const toneMap = {
   primary: 'border-blue-500/20 bg-blue-500/10 text-blue-100',
   emerald: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-100',
@@ -20,7 +22,7 @@ export function KpiGrid({ items }: Props) {
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {items.map((item, index) => (
         <motion.div key={item.label} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: index * 0.06 }}>
-          <Card className={cn('border', toneMap[item.tone])}>
+          <Card className={cn('border', toneMap[item.tone ?? toneOrder[index % toneOrder.length]])}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm text-slate-300">{item.label}</p>

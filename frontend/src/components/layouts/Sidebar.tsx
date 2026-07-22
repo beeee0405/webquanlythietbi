@@ -2,8 +2,25 @@ import { motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { navItems } from '@/nav'
+import { useAuth } from '@/contexts/AuthContext'
+import { usePermission } from '@/hooks/usePermission'
 
 export function Sidebar() {
+  const { user } = useAuth()
+  const { isInfrastructure, isEndUser } = usePermission()
+
+  // Filter nav items based on role
+  const filteredItems = navItems.filter(item => {
+    // End users don't see any of these (they get UserPortalDashboard instead)
+    if (isEndUser) return false
+    
+    // Infrastructure specialists can't see Users module
+    if (isInfrastructure && item.to === '/users') return false
+    
+    // Admins see everything
+    return true
+  })
+
   return (
     <motion.aside
       initial={{ x: -18, opacity: 0 }}
@@ -20,7 +37,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
-        {navItems.map(item => {
+        {filteredItems.map(item => {
           const Icon = item.icon
           return (
             <NavLink
@@ -38,17 +55,30 @@ export function Sidebar() {
 
       <div className="mt-4 rounded-[18px] border border-slate-800 bg-slate-900/60 p-4 text-sm text-slate-300">
         <div className="text-xs uppercase tracking-[0.22em] text-slate-500">Vai trò hiện tại</div>
-        <div className="mt-1 font-semibold text-white">Kỹ thuật viên</div>
-        <div className="mt-3 text-xs text-slate-400">Responsive, dark mode mặc định, tối ưu cho dashboard doanh nghiệp.</div>
+        <div className="mt-1 font-semibold text-white">{user?.role}</div>
+        <div className="mt-3 text-xs text-slate-400">
+          {user?.role === 'Quản trị viên' && 'Toàn quyền quản lý hệ thống'}
+          {user?.role === 'Chuyên viên Phòng Hạ tầng' && 'Quản lý thiết bị & hạ tầng'}
+          {user?.role === 'Người dùng' && 'Báo lỗi và yêu cầu hỗ trợ'}
+        </div>
       </div>
     </motion.aside>
   )
 }
 
 export function MobileSidebarList({ onNavigate }: { onNavigate?: () => void }) {
+  const { isInfrastructure, isEndUser } = usePermission()
+
+  // Filter nav items based on role
+  const filteredItems = navItems.filter(item => {
+    if (isEndUser) return false
+    if (isInfrastructure && item.to === '/users') return false
+    return true
+  })
+
   return (
     <div className="space-y-2">
-      {navItems.map(item => {
+      {filteredItems.map(item => {
         const Icon = item.icon
         return (
           <NavLink
