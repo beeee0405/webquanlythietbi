@@ -26,6 +26,9 @@ export function ChartCard({ title, kind, data, colors = ['#3b82f6', '#10b981', '
           <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent className="h-[290px]">
+          {data.length === 0 ? (
+            <div className="flex h-full items-center justify-center text-sm text-slate-500">Chưa có dữ liệu</div>
+          ) : (
           <ResponsiveContainer width="100%" height="100%">
             {kind === 'pie' ? (
               <PieChart>
@@ -69,6 +72,7 @@ export function ChartCard({ title, kind, data, colors = ['#3b82f6', '#10b981', '
               </AreaChart>
             )}
           </ResponsiveContainer>
+          )}
         </CardContent>
       </Card>
     </motion.div>

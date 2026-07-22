@@ -69,7 +69,12 @@ export function DataTable({ title, items, mode }: Props) {
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map(row => (
+              {table.getRowModel().rows.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-slate-500">Chưa có dữ liệu</td>
+                </tr>
+              ) : (
+              table.getRowModel().rows.map(row => (
                 <tr key={row.id} className="border-t border-slate-800/80 hover:bg-slate-900/60">
                   {row.getVisibleCells().map(cell => (
                     <td key={cell.id} className="px-4 py-3 text-slate-200">
@@ -79,7 +84,8 @@ export function DataTable({ title, items, mode }: Props) {
                     </td>
                   ))}
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>

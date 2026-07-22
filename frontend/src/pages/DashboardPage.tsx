@@ -72,15 +72,19 @@ export function DashboardPage() {
             <CardTitle>Thiết bị sắp hết bảo hành</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {recentDevices.slice(0, 4).map(device => (
-              <div key={device.id} className="flex items-center justify-between rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
-                <div>
-                  <div className="font-medium text-white">{device.name}</div>
-                  <div className="text-sm text-slate-400">{device.room} · {device.warranty}</div>
+            {(data?.warrantyExpiring && data.warrantyExpiring.length > 0) ? (
+              data.warrantyExpiring.slice(0, 4).map((device: any) => (
+                <div key={device.id || device.name} className="flex items-center justify-between rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
+                  <div>
+                    <div className="font-medium text-white">{device.name}</div>
+                    <div className="text-sm text-slate-400">{device.room} · {device.warranty}</div>
+                  </div>
+                  <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs text-amber-200">{device.daysLeft} ngày</span>
                 </div>
-                <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs text-amber-200">30 ngày</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-sm text-slate-500">Chưa có dữ liệu</div>
+            )}
           </CardContent>
         </Card>
 
@@ -89,17 +93,21 @@ export function DashboardPage() {
             <CardTitle>Ticket mới</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {recentTickets.slice(0, 4).map(ticket => (
-              <div key={ticket.id} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="font-medium text-white">{ticket.subject}</div>
-                    <div className="text-sm text-slate-400">{ticket.room} · {ticket.requester}</div>
+            {(data?.tickets && data.tickets.length > 0) ? (
+              data.tickets.slice(0, 4).map((ticket: any) => (
+                <div key={ticket.id} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <div className="font-medium text-white">{ticket.subject}</div>
+                      <div className="text-sm text-slate-400">{ticket.room} · {ticket.requester}</div>
+                    </div>
+                    <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-xs text-blue-100">{ticket.status}</span>
                   </div>
-                  <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-xs text-blue-100">{ticket.status}</span>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-sm text-slate-500">Chưa có dữ liệu</div>
+            )}
           </CardContent>
         </Card>
 
@@ -108,9 +116,13 @@ export function DashboardPage() {
             <CardTitle>Hoạt động gần đây</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-300">
-            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">KTV Nguyễn Văn Hoàng cập nhật ticket #141.</div>
-            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">Thiết bị TS-2403 chuyển sang trạng thái bảo trì.</div>
-            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">Đợt kiểm kê phòng A3.302 đã hoàn thành 15/20 máy.</div>
+            {(data?.recentActivities && data.recentActivities.length > 0) ? (
+              data.recentActivities.slice(0, 4).map((activity: any, index: number) => (
+                <div key={index} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">{activity.message}</div>
+              ))
+            ) : (
+              <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-slate-500">Chưa có dữ liệu</div>
+            )}
           </CardContent>
         </Card>
 
@@ -119,9 +131,13 @@ export function DashboardPage() {
             <CardTitle>Lịch bảo trì</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-300">
-            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">02/08 - Bảo trì phòng máy A3.302</div>
-            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">05/08 - Vệ sinh switch server</div>
-            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">06/08 - Kiểm tra UPS và nguồn dự phòng</div>
+            {(data?.maintenanceSchedule && data.maintenanceSchedule.length > 0) ? (
+              data.maintenanceSchedule.slice(0, 4).map((item: any, index: number) => (
+                <div key={index} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">{item.date} - {item.description}</div>
+              ))
+            ) : (
+              <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-slate-500">Chưa có dữ liệu</div>
+            )}
           </CardContent>
         </Card>
 

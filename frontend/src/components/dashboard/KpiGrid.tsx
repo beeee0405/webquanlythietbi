@@ -32,7 +32,9 @@ export function KpiGrid({ items }: Props) {
                 {item.delta.startsWith('-') ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
               </div>
             </div>
-            <div className="mt-4 text-sm text-slate-300">{item.delta} so với kỳ trước</div>
+            {item.delta && item.delta !== '0%' && (
+              <div className="mt-4 text-sm text-slate-300">{item.delta} so với kỳ trước</div>
+            )}
           </Card>
         </motion.div>
       ))}
