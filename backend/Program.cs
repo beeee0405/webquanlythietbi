@@ -78,11 +78,10 @@ try
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    // Reset database on startup to ensure fresh data with new roles
-    await db.Database.EnsureDeletedAsync();
+    // Ensure database exists (do NOT delete existing data)
     await db.Database.EnsureCreatedAsync();
     await DbSeeder.SeedAsync(db);
-    logger.LogInformation("Đã xóa DB cũ, tạo DB mới và đồng bộ dữ liệu mẫu.");
+    logger.LogInformation("Database đã sẵn sàng. Admin account đã được tạo (nếu chưa tồn tại).");
 }
 catch (Exception ex)
 {
