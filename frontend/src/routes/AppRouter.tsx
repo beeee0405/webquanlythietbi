@@ -79,9 +79,15 @@ function EndUserRoutes() {
 export function AppRouter() {
   const { user } = useAuth()
 
+  // Nếu đã đăng nhập và vào /login → redirect về trang chủ
+  const LoginGuard = () => {
+    if (user) return <Navigate to="/" replace />
+    return <LoginPage />
+  }
+
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/login" element={<LoginGuard />} />
       
       {/* Role-based routing */}
       {user?.role === 'Người dùng' ? (

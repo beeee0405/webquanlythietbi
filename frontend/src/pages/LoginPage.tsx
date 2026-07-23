@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Button } from '../components/ui/button'
@@ -10,8 +10,15 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const navigate = useNavigate()
+
+  // Redirect sau khi user state thực sự được set (tránh race condition)
+  useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true })
+    }
+  }, [user, navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,11 +26,10 @@ export function LoginPage() {
     setLoading(true)
 
     const success = await login(username, password)
-    if (success) {
-      navigate('/')
-    } else {
+    if (!success) {
       setError('Username hoặc password không đúng')
     }
+    // Không navigate ở đây - để useEffect xử lý khi user state được set
     setLoading(false)
   }
 
