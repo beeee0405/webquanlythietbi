@@ -201,7 +201,7 @@ public record TicketManagementResponse(
     IReadOnlyList<PointDto> ChannelData,
     IReadOnlyList<PointDto> SlaTrendData,
     IReadOnlyList<PointDto> AgeBuckets,
-    IReadOnlyList<TicketDto> Tickets,
+    IReadOnlyList<TicketDto> Items,
     IReadOnlyList<string> Statuses,
     IReadOnlyList<string> Priorities,
     IReadOnlyList<string> Channels);
@@ -221,7 +221,7 @@ public record RoomManagementResponse(
     IReadOnlyList<KpiDto> Overview,
     IReadOnlyList<PointDto> TypeBreakdown,
     IReadOnlyList<PointDto> StatusBreakdown,
-    IReadOnlyList<RoomDto> Rooms,
+    IReadOnlyList<RoomDto> Items,
     IReadOnlyList<string> Types,
     IReadOnlyList<string> Buildings);
 
@@ -229,27 +229,27 @@ public record CameraManagementResponse(
     IReadOnlyList<KpiDto> Overview,
     IReadOnlyList<PointDto> StatusBreakdown,
     IReadOnlyList<PointDto> RoomLoad,
-    IReadOnlyList<CameraDto> Cameras,
+    IReadOnlyList<CameraDto> Items,
     IReadOnlyList<string> Statuses);
 
 public record NetworkManagementResponse(
     IReadOnlyList<KpiDto> Overview,
     IReadOnlyList<PointDto> TypeBreakdown,
     IReadOnlyList<PointDto> StatusBreakdown,
-    IReadOnlyList<NetworkDeviceDto> Devices,
+    IReadOnlyList<NetworkDeviceDto> Items,
     IReadOnlyList<string> Types,
     IReadOnlyList<string> Statuses);
 
 public record InventoryManagementResponse(
     IReadOnlyList<KpiDto> Overview,
     IReadOnlyList<PointDto> StatusBreakdown,
-    IReadOnlyList<InventorySessionDto> Sessions,
+    IReadOnlyList<InventorySessionDto> Items,
     IReadOnlyList<string> Statuses);
 
 public record TransferManagementResponse(
     IReadOnlyList<KpiDto> Overview,
     IReadOnlyList<PointDto> StatusBreakdown,
-    IReadOnlyList<TransferDto> Transfers,
+    IReadOnlyList<TransferDto> Items,
     IReadOnlyList<string> Statuses);
 
 public record LiquidationManagementResponse(

@@ -145,6 +145,7 @@ export function RoomManagementPage() {
                 {types.map(t => <option key={t}>{t}</option>)}
               </Select>
               <Select value={building} onChange={e => setBuilding(e.target.value)}>
+                <option>Tất cả</option>
                 {buildings.map(b => <option key={b}>{b}</option>)}
               </Select>
               <Button variant="outline" className="gap-2"><Filter className="h-4 w-4" />Lọc</Button>

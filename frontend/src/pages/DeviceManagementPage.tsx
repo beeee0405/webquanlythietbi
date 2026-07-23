@@ -152,6 +152,7 @@ export function DeviceManagementPage() {
                 {deviceStatuses.map(s => <option key={s}>{s}</option>)}
               </Select>
               <Select value={category} onChange={e => setCategory(e.target.value)}>
+                <option>Tất cả</option>
                 {categories.map(c => <option key={c}>{c}</option>)}
               </Select>
               <Button variant="outline" className="gap-2"><SlidersHorizontal className="h-4 w-4" />Bộ lọc</Button>
