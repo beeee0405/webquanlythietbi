@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react'
 import { Bell, LogOut, Menu, Search, Sparkles, UserRound } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
@@ -11,12 +12,20 @@ import { MobileSidebarList } from '@/components/layouts/Sidebar'
 import { titleMap } from '@/nav'
 import { useAuth } from '@/contexts/AuthContext'
 import { getDashboardData } from '@/services/dashboardService'
+import { getRoomData } from '@/services/roomService'
+import { http } from '@/services/http'
+import type { DeviceRecord, TicketRecord } from '@/types/dashboard'
+import type { RoomItem } from '@/types/room'
+import type { UserItem } from '@/types/user'
 
 export function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const currentTitle = titleMap[location.pathname] ?? 'Dashboard'
+
+  const [query, setQuery] = useState('')
+  const [showResults, setShowResults] = useState(false)
 
   const { data: dashboardData } = useQuery({
     queryKey: ['dashboard-data'],
@@ -25,7 +34,67 @@ export function Navbar() {
     enabled: !!user
   })
 
+  const { data: roomsData } = useQuery({
+    queryKey: ['rooms-module'],
+    queryFn: getRoomData,
+    staleTime: 60_000,
+    enabled: !!user
+  })
+
+  const isAdmin = user?.role === 'Quản trị viên'
+  const { data: usersData } = useQuery({
+    queryKey: ['users-module'],
+    queryFn: async () => {
+      const response = await http.get('/users')
+      return response.data
+    },
+    staleTime: 60_000,
+    enabled: !!user && isAdmin
+  })
+
   const alerts = dashboardData?.alerts ?? []
+
+  const devices = dashboardData?.devices ?? []
+  const tickets = dashboardData?.tickets ?? []
+  const rooms = roomsData?.items ?? []
+  const users = usersData?.users ?? []
+
+  const filteredDevices = useMemo(() => {
+    if (!query.trim()) return []
+    const kw = query.trim().toLowerCase()
+    return devices.filter((d: DeviceRecord) => 
+      d.name?.toLowerCase().includes(kw) || 
+      d.assetCode?.toLowerCase().includes(kw)
+    ).slice(0, 5)
+  }, [devices, query])
+
+  const filteredTickets = useMemo(() => {
+    if (!query.trim()) return []
+    const kw = query.trim().toLowerCase()
+    return tickets.filter((t: TicketRecord) => 
+      t.subject?.toLowerCase().includes(kw)
+    ).slice(0, 5)
+  }, [tickets, query])
+
+  const filteredRooms = useMemo(() => {
+    if (!query.trim()) return []
+    const kw = query.trim().toLowerCase()
+    return rooms.filter((r: RoomItem) => 
+      r.name?.toLowerCase().includes(kw) || 
+      r.code?.toLowerCase().includes(kw)
+    ).slice(0, 5)
+  }, [rooms, query])
+
+  const filteredUsers = useMemo(() => {
+    if (!query.trim()) return []
+    const kw = query.trim().toLowerCase()
+    return users.filter((u: UserItem) => 
+      u.fullName?.toLowerCase().includes(kw) || 
+      u.email?.toLowerCase().includes(kw)
+    ).slice(0, 5)
+  }, [users, query])
+
+  const hasResults = filteredDevices.length > 0 || filteredTickets.length > 0 || filteredRooms.length > 0 || filteredUsers.length > 0
 
   const handleLogout = () => {
     logout()
@@ -49,11 +118,18 @@ export function Navbar() {
           </Sheet>
           <div className="text-sm font-semibold text-white">{currentTitle}</div>
         </div>
-
+ 
         <div className="min-w-0 flex-1 lg:max-w-3xl">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-            <Input className="h-11 rounded-[16px] border-slate-800 bg-slate-900/70 pl-10 pr-28 text-slate-100 placeholder:text-slate-500" placeholder="Tìm thiết bị, ticket, phòng, người dùng..." />
+            <Input 
+              value={query}
+              onChange={e => { setQuery(e.target.value); setShowResults(true); }}
+              onFocus={() => setShowResults(true)}
+              onBlur={() => setTimeout(() => setShowResults(false), 200)}
+              className="h-11 rounded-[16px] border-slate-800 bg-slate-900/70 pl-10 pr-28 text-slate-100 placeholder:text-slate-500" 
+              placeholder="Tìm thiết bị, ticket, phòng, người dùng..." 
+            />
             <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -61,9 +137,91 @@ export function Navbar() {
                     <Sparkles className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Command palette</TooltipContent>
+                <TooltipContent>Instant search</TooltipContent>
               </Tooltip>
             </div>
+
+            {showResults && query.trim() && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-[380px] overflow-y-auto rounded-[20px] border border-slate-800 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md">
+                {!hasResults ? (
+                  <div className="py-6 text-center text-sm text-slate-500">Không tìm thấy kết quả nào</div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredDevices.length > 0 && (
+                      <div>
+                        <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Thiết bị</div>
+                        <div className="space-y-1">
+                          {filteredDevices.map(d => (
+                            <div 
+                              key={d.id} 
+                              onClick={() => { navigate('/devices'); setQuery(''); setShowResults(false); }}
+                              className="flex cursor-pointer flex-col rounded-[12px] p-2 hover:bg-slate-900/80 transition-colors"
+                            >
+                              <div className="text-xs font-medium text-white">{d.name}</div>
+                              <div className="text-[10px] text-slate-400">Mã: {d.assetCode} · Loại: {d.category}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {filteredTickets.length > 0 && (
+                      <div>
+                        <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Ticket</div>
+                        <div className="space-y-1">
+                          {filteredTickets.map(t => (
+                            <div 
+                              key={t.id} 
+                              onClick={() => { navigate('/tickets'); setQuery(''); setShowResults(false); }}
+                              className="flex cursor-pointer flex-col rounded-[12px] p-2 hover:bg-slate-900/80 transition-colors"
+                            >
+                              <div className="text-xs font-medium text-white">{t.subject}</div>
+                              <div className="text-[10px] text-slate-400">Phòng: {t.room} · Trạng thái: {t.status}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {filteredRooms.length > 0 && (
+                      <div>
+                        <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Phòng</div>
+                        <div className="space-y-1">
+                          {filteredRooms.map(r => (
+                            <div 
+                              key={r.id} 
+                              onClick={() => { navigate('/rooms'); setQuery(''); setShowResults(false); }}
+                              className="flex cursor-pointer flex-col rounded-[12px] p-2 hover:bg-slate-900/80 transition-colors"
+                            >
+                              <div className="text-xs font-medium text-white">{r.name}</div>
+                              <div className="text-[10px] text-slate-400">Mã phòng: {r.code} · Quản lý: {r.manager}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {filteredUsers.length > 0 && (
+                      <div>
+                        <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Người dùng</div>
+                        <div className="space-y-1">
+                          {filteredUsers.map((u: UserItem) => (
+                            <div 
+                              key={u.id} 
+                              onClick={() => { navigate('/users'); setQuery(''); setShowResults(false); }}
+                              className="flex cursor-pointer flex-col rounded-[12px] p-2 hover:bg-slate-900/80 transition-colors"
+                            >
+                              <div className="text-xs font-medium text-white">{u.fullName}</div>
+                              <div className="text-[10px] text-slate-400">{u.email} · Vai trò: {u.role}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -77,17 +235,18 @@ export function Navbar() {
               <Button variant="outline" size="icon" className="relative">
                 <Bell className="h-4 w-4" />
                 {alerts.length > 0 && (
-                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-emerald-400" />
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 rounded-[20px] border-slate-800 bg-slate-950 p-4">
+            <PopoverContent className="w-80 rounded-[20px] border-slate-800 bg-slate-950 p-4 shadow-2xl">
               <div className="text-sm font-semibold text-white">Thông báo</div>
-              <div className="mt-3 space-y-3 text-sm text-slate-300">
+              <div className="mt-3 space-y-3 text-sm text-slate-300 max-h-[300px] overflow-y-auto">
                 {alerts.length > 0 ? (
                   alerts.map((alert, index) => (
-                    <div key={index} className="rounded-[14px] border border-slate-800 bg-slate-900/60 p-3">
-                      {alert.label}: {alert.value}
+                    <div key={index} className="rounded-[14px] border border-slate-800/80 bg-slate-900/40 p-3 hover:bg-slate-900/60 transition-all">
+                      <div className="font-semibold text-xs text-white mb-1">{alert.label}</div>
+                      <div className="text-slate-300 text-xs leading-relaxed">{alert.value}</div>
                     </div>
                   ))
                 ) : (

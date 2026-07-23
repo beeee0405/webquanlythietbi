@@ -131,6 +131,43 @@ public class AppDataService
             new("Ticket đang xử lý", ticketsInProgress, "-3.2%", "zinc")
         };
 
+        var alerts = new List<AlertDto>();
+
+        // 1. Check for offline network devices
+        var offlineNet = await _db.NetworkDevices.Where(n => n.Status == "Offline").ToListAsync();
+        foreach (var net in offlineNet)
+        {
+            alerts.Add(new AlertDto("Thiết bị mạng Offline", $"{net.Name} ({net.Code}) đang mất kết nối!"));
+        }
+
+        // 2. Check for offline cameras
+        var offlineCams = await _db.Cameras.Where(c => c.Status == "Offline").ToListAsync();
+        foreach (var cam in offlineCams)
+        {
+            alerts.Add(new AlertDto("Camera Offline", $"{cam.Name} ({cam.Code}) đang offline!"));
+        }
+
+        // 3. Check for new tickets
+        var newTickets = await _db.Tickets.Where(t => t.Status == "Mới").ToListAsync();
+        foreach (var t in newTickets)
+        {
+            alerts.Add(new AlertDto("Yêu cầu hỗ trợ mới", $"[{t.Code}] {t.Subject}"));
+        }
+
+        // 4. Check for pending liquidations
+        var pendingLiqs = await _db.Liquidations.Where(l => l.Status == "Chờ duyệt").ToListAsync();
+        foreach (var l in pendingLiqs)
+        {
+            alerts.Add(new AlertDto("Thanh lý chờ duyệt", $"Yêu cầu thanh lý [{l.Code}] đang chờ duyệt"));
+        }
+
+        // 5. Check for pending transfers
+        var pendingTrans = await _db.Transfers.Where(t => t.Status == "Chờ duyệt").ToListAsync();
+        foreach (var t in pendingTrans)
+        {
+            alerts.Add(new AlertDto("Điều chuyển chờ duyệt", $"Yêu cầu điều chuyển [{t.Code}] đang chờ duyệt"));
+        }
+
         return new DashboardResponse(
             realKpis,
             BuildDeviceTypeData(devices),
@@ -141,7 +178,7 @@ public class AppDataService
             BuildTicketPriorityData(tickets),
             BuildRoomLoad(devices),
             new List<PointDto>(),
-            new List<AlertDto>(),
+            alerts,
             devices,
             tickets);
     }
