@@ -29,10 +29,20 @@ public class TicketsController : ControllerBase
     [Authorize(Policy = "AnyUser")]
     public async Task<ActionResult<TicketDto>> Create([FromBody] TicketDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code) || string.IsNullOrEmpty(dto.Subject))
-            return BadRequest("Mã ticket và tiêu đề không được để trống");
+        if (string.IsNullOrEmpty(dto.Subject))
+            return BadRequest("Tiêu đề không được để trống");
 
         var ticket = EntityMapper.ToEntity(dto);
+
+        if (string.IsNullOrEmpty(ticket.Code))
+            ticket.Code = "TKT-" + new Random().Next(10000, 99999);
+        
+        if (string.IsNullOrEmpty(ticket.CreatedAt))
+            ticket.CreatedAt = DateTime.Now.ToString("dd/MM/yyyy");
+
+        if (string.IsNullOrEmpty(ticket.UpdatedAt))
+            ticket.UpdatedAt = ticket.CreatedAt;
+
         _db.Tickets.Add(ticket);
         await _db.SaveChangesAsync();
 
