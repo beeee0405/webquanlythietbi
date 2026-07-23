@@ -4,21 +4,29 @@ namespace backend.Data;
 
 public static class EntityMapper {
     private static int? ParseId(string? input) => int.TryParse(input, out var id) ? id : null;
-    // â”€â”€ ToDto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── ToDto ──────────────────────────────────────────────────────────────
 
     public static DeviceDto ToDto(Device d) => new(
         d.Id.ToString(), d.AssetCode, d.Name, d.Category, d.Brand,
-        d.RoomId.ToString(), d.OwnerId.ToString(), d.Status, d.Warranty, d.Serial,
+        d.Room?.Name ?? d.RoomId?.ToString() ?? "",
+        d.Owner?.FullName ?? d.OwnerId?.ToString() ?? "",
+        d.Status, d.Warranty, d.Serial,
         d.PurchaseDate, d.UpdatedAt);
 
     public static TicketDto ToDto(Ticket t) => new(
-        t.Id.ToString(), t.Code, t.Subject, t.RequesterId.ToString(), t.RoomId.ToString(),
-        t.DeviceId.ToString(), t.Category, t.Priority, t.Status, t.Channel,
-        t.AssigneeId.ToString(), t.Sla, t.CreatedAt, t.UpdatedAt);
+        t.Id.ToString(), t.Code, t.Subject,
+        t.Requester?.FullName ?? t.RequesterId?.ToString() ?? "",
+        t.Room?.Name ?? t.RoomId?.ToString() ?? "",
+        t.Device?.Name ?? t.DeviceId?.ToString() ?? "",
+        t.Category, t.Priority, t.Status, t.Channel,
+        t.Assignee?.FullName ?? t.AssigneeId?.ToString() ?? "",
+        t.Sla, t.CreatedAt, t.UpdatedAt);
 
     public static MaintenanceDto ToDto(MaintenanceItem m) => new(
         m.Id.ToString(), m.Code, m.Title, m.AssetCode, m.AssetName,
-        m.RoomId.ToString(), m.Type, m.Priority, m.Status, m.AssigneeId.ToString(),
+        m.Room?.Name ?? m.RoomId?.ToString() ?? "",
+        m.Type, m.Priority, m.Status,
+        m.Assignee?.FullName ?? m.AssigneeId?.ToString() ?? "",
         m.ScheduledAt, m.CompletedAt, m.Cost, m.Note);
 
     public static RoomDto ToDto(Room r) => new(
@@ -26,43 +34,56 @@ public static class EntityMapper {
         r.Type, r.Capacity.ToString(), r.Status, r.Manager, r.Note);
 
     public static CameraDto ToDto(Camera c) => new(
-        c.Id.ToString(), c.Code, c.Name, c.RoomId.ToString(), c.IpAddress,
-        c.Brand, c.Model, c.Resolution, c.Status,
+        c.Id.ToString(), c.Code, c.Name,
+        c.Room?.Name ?? c.RoomId?.ToString() ?? "",
+        c.IpAddress, c.Brand, c.Model, c.Resolution, c.Status,
         c.InstalledAt, c.Warranty, c.Note);
 
     public static NetworkDeviceDto ToDto(NetworkDevice n) => new(
         n.Id.ToString(), n.Code, n.Name, n.Type, n.Brand, n.Model,
-        n.RoomId.ToString(), n.IpAddress, n.MacAddress, n.Vlan, n.Port,
+        n.Room?.Name ?? n.RoomId?.ToString() ?? "",
+        n.IpAddress, n.MacAddress, n.Vlan, n.Port,
         n.Status, n.Warranty, n.InstalledAt, n.Note);
 
     public static InventorySessionDto ToDto(InventorySession i) => new(
-        i.Id.ToString(), i.Code, i.RoomId.ToString(), i.InspectorId.ToString(), i.Status,
+        i.Id.ToString(), i.Code,
+        i.Room?.Name ?? i.RoomId?.ToString() ?? "",
+        i.Inspector?.FullName ?? i.InspectorId?.ToString() ?? "",
+        i.Status,
         i.TotalDevices.ToString(), i.CheckedDevices.ToString(),
         i.MissingDevices.ToString(), i.ExtraDevices.ToString(),
         i.StartedAt, i.CompletedAt, i.Note);
 
     public static TransferDto ToDto(Transfer t) => new(
         t.Id.ToString(), t.Code, t.AssetCode, t.AssetName,
-        t.FromRoomId.ToString(), t.ToRoomId.ToString(), t.RequesterId.ToString(), t.ApproverId.ToString(),
+        t.FromRoom?.Name ?? t.FromRoomId?.ToString() ?? "",
+        t.ToRoom?.Name ?? t.ToRoomId?.ToString() ?? "",
+        t.Requester?.FullName ?? t.RequesterId?.ToString() ?? "",
+        t.Approver?.FullName ?? t.ApproverId?.ToString() ?? "",
         t.Status, t.TransferredAt, t.ApprovedAt, t.Note);
 
     public static LiquidationDto ToDto(Liquidation l) => new(
         l.Id.ToString(), l.Code, l.AssetCode, l.AssetName,
-        l.RoomId.ToString(), l.Reason, l.Condition, l.Status, l.RequesterId.ToString(),
-        l.ApproverId.ToString(), l.ResidualValue.ToString("N0"),
+        l.Room?.Name ?? l.RoomId?.ToString() ?? "",
+        l.Reason, l.Condition, l.Status,
+        l.Requester?.FullName ?? l.RequesterId?.ToString() ?? "",
+        l.Approver?.FullName ?? l.ApproverId?.ToString() ?? "",
+        l.ResidualValue.ToString(),
         l.RequestedAt, l.CompletedAt, l.Note);
 
     public static SoftwareDto ToDto(Software s) => new(
         s.Id.ToString(), s.Name, s.Publisher, s.Version, s.Category,
         s.LicenseType, s.LicenseKey, s.TotalLicenses.ToString(),
-        s.UsedLicenses.ToString(), s.ExpiresAt, s.RoomId.ToString(), s.Status, s.Note);
+        s.UsedLicenses.ToString(), s.ExpiresAt,
+        s.Room?.Name ?? s.RoomId?.ToString() ?? "",
+        s.Status, s.Note);
 
     public static AppUserDto ToDto(AppUser u) => new(
         u.Id.ToString(), u.FullName, u.Email, u.Phone,
-        u.Department, "", u.Role, u.Status,
+        u.Department, u.Room ?? "", u.Role, u.Status,
         u.CreatedAt, u.LastLogin);
 
-    // â”€â”€ ToEntity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── ToEntity ──────────────────────────────────────────────────────────
 
     public static Device ToEntity(DeviceDto d) => new()
     {
@@ -163,10 +184,7 @@ public static class EntityMapper {
     public static AppUser ToEntity(AppUserDto u) => new()
     {
         FullName = u.FullName ?? "", Email = u.Email ?? "", Phone = u.Phone ?? "",
-        Department = u.Department ?? "", Role = u.Role ?? "",
+        Department = u.Department ?? "", Room = u.Room ?? "", Role = u.Role ?? "",
         Status = u.Status ?? "", CreatedAt = u.CreatedAt ?? "", LastLogin = u.LastLogin ?? ""
     };
-}
-
-
 

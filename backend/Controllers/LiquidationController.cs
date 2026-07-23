@@ -31,7 +31,7 @@ public class LiquidationController : ControllerBase
     {
         var item = EntityMapper.ToEntity(dto);
         if (string.IsNullOrEmpty(item.Code))
-            item.Code = "TL-" + new Random().Next(10000, 99999);
+            item.Code = "TL-" + Random.Shared.Next(10000, 99999);
         if (string.IsNullOrEmpty(item.Status))
             item.Status = "Chờ duyệt";
         if (string.IsNullOrEmpty(item.RequestedAt))

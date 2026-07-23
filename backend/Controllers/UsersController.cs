@@ -115,6 +115,12 @@ public class UsersController : ControllerBase
         if (user == null)
             return NotFound();
 
+        // BUG-09: Also remove the IdentityUser so they can't log in anymore
+        var identityUser = await _db.IdentityUsers
+            .FirstOrDefaultAsync(u => u.Email == user.Email);
+        if (identityUser != null)
+            _db.IdentityUsers.Remove(identityUser);
+
         _db.AppUsers.Remove(user);
         await _db.SaveChangesAsync();
         return Ok(new { message = "Xóa người dùng thành công" });

@@ -16,9 +16,21 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        // Lấy danh sách allowed origins từ config (hoặc dùng mặc định)
+        var allowedOrigins = builder.Configuration
+            .GetSection("AllowedOrigins")
+            .Get<string[]>()
+            ?? new[]
+            {
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "https://webquanlythietbi.vercel.app"
+            };
+
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 builder.Services.AddEndpointsApiExplorer();

@@ -15,19 +15,31 @@ public class AppDataService
 
     public async Task<IReadOnlyList<DeviceDto>> GetDevicesAsync()
     {
-        var devices = await _db.Devices.OrderBy(d => d.Id).ToListAsync();
+        var devices = await _db.Devices
+            .Include(d => d.Room)
+            .Include(d => d.Owner)
+            .OrderBy(d => d.Id).ToListAsync();
         return devices.Select(EntityMapper.ToDto).ToList();
     }
 
     public async Task<IReadOnlyList<TicketDto>> GetTicketsAsync()
     {
-        var tickets = await _db.Tickets.OrderBy(t => t.Id).ToListAsync();
+        var tickets = await _db.Tickets
+            .Include(t => t.Requester)
+            .Include(t => t.Assignee)
+            .Include(t => t.Room)
+            .Include(t => t.Device)
+            .OrderBy(t => t.Id).ToListAsync();
         return tickets.Select(EntityMapper.ToDto).ToList();
     }
 
     public async Task<IReadOnlyList<MaintenanceDto>> GetMaintenanceItemsAsync()
     {
-        var items = await _db.MaintenanceItems.OrderBy(m => m.Id).ToListAsync();
+        var items = await _db.MaintenanceItems
+            .Include(m => m.Room)
+            .Include(m => m.Assignee)
+            .Include(m => m.Device)
+            .OrderBy(m => m.Id).ToListAsync();
         return items.Select(EntityMapper.ToDto).ToList();
     }
 
@@ -142,37 +154,57 @@ public class AppDataService
 
     public async Task<IReadOnlyList<CameraDto>> GetCamerasAsync()
     {
-        var cameras = await _db.Cameras.OrderBy(c => c.Id).ToListAsync();
+        var cameras = await _db.Cameras
+            .Include(c => c.Room)
+            .OrderBy(c => c.Id).ToListAsync();
         return cameras.Select(EntityMapper.ToDto).ToList();
     }
 
     public async Task<IReadOnlyList<NetworkDeviceDto>> GetNetworkDevicesAsync()
     {
-        var devices = await _db.NetworkDevices.OrderBy(n => n.Id).ToListAsync();
+        var devices = await _db.NetworkDevices
+            .Include(n => n.Room)
+            .OrderBy(n => n.Id).ToListAsync();
         return devices.Select(EntityMapper.ToDto).ToList();
     }
 
     public async Task<IReadOnlyList<InventorySessionDto>> GetInventorySessionsAsync()
     {
-        var sessions = await _db.InventorySessions.OrderBy(i => i.Id).ToListAsync();
+        var sessions = await _db.InventorySessions
+            .Include(i => i.Room)
+            .Include(i => i.Inspector)
+            .OrderBy(i => i.Id).ToListAsync();
         return sessions.Select(EntityMapper.ToDto).ToList();
     }
 
     public async Task<IReadOnlyList<TransferDto>> GetTransfersAsync()
     {
-        var transfers = await _db.Transfers.OrderBy(t => t.Id).ToListAsync();
+        var transfers = await _db.Transfers
+            .Include(t => t.Device)
+            .Include(t => t.FromRoom)
+            .Include(t => t.ToRoom)
+            .Include(t => t.Requester)
+            .Include(t => t.Approver)
+            .OrderBy(t => t.Id).ToListAsync();
         return transfers.Select(EntityMapper.ToDto).ToList();
     }
 
     public async Task<IReadOnlyList<LiquidationDto>> GetLiquidationsAsync()
     {
-        var items = await _db.Liquidations.OrderBy(l => l.Id).ToListAsync();
+        var items = await _db.Liquidations
+            .Include(l => l.Room)
+            .Include(l => l.Device)
+            .Include(l => l.Requester)
+            .Include(l => l.Approver)
+            .OrderBy(l => l.Id).ToListAsync();
         return items.Select(EntityMapper.ToDto).ToList();
     }
 
     public async Task<IReadOnlyList<SoftwareDto>> GetSoftwareItemsAsync()
     {
-        var items = await _db.Softwares.OrderBy(s => s.Id).ToListAsync();
+        var items = await _db.Softwares
+            .Include(s => s.Room)
+            .OrderBy(s => s.Id).ToListAsync();
         return items.Select(EntityMapper.ToDto).ToList();
     }
 

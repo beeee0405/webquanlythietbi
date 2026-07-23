@@ -4,7 +4,7 @@ const baseURL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://l
 
 export const http = axios.create({
   baseURL,
-  timeout: 8000,
+  timeout: 30000, // BUG-14: Render.com free tier cold start can take ~15s
   headers: {
     'Content-Type': 'application/json'
   }

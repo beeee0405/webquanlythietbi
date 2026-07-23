@@ -11,8 +11,8 @@ import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import type { LiquidationItem } from '@/types/liquidation'
 
-const STATUSES = ['Chờ duyệt', 'Đã duyệt', 'Đã thanh lý', 'Từ chối'] as const
-const CONDITIONS = ['Tốt', 'Bình thường', 'Hỏng'] as const
+const STATUSES = ['Chờ duyệt', 'Đã duyệt', 'Hoàn thành'] as const
+const CONDITIONS = ['Hỏng hoàn toàn', 'Lạc hậu', 'Mất mát'] as const
 
 const schema = z.object({
   code: z.string().min(2, 'Mã yêu cầu tối thiểu 2 ký tự'),
@@ -55,7 +55,18 @@ export function LiquidationDialog({ mode, open, onOpenChange, item, onAdd, onEdi
   }, [open, mode, item, reset])
 
   const onSubmit = async (v: FormValues) => {
-    try { if (mode === 'add') { await onAdd?.(v); toast.success('Đã thêm thành công'); } else { await onEdit?.(item?.id || v.id, v); toast.success('Đã cập nhật thành công'); } onOpenChange(false); } catch (e) { toast.error('Có lỗi xảy ra'); }
+    try {
+      if (mode === 'add') {
+        await onAdd?.(v)
+        toast.success('Đã thêm thành công')
+      } else {
+        await onEdit?.(item!.id, v)  // BUG-10: use item!.id, FormValues has no 'id'
+        toast.success('Đã cập nhật thành công')
+      }
+      onOpenChange(false)
+    } catch {
+      toast.error('Có lỗi xảy ra')
+    }
   }
 
   const handleDelete = async () => {

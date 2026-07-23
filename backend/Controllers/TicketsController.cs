@@ -2,6 +2,7 @@ using backend.Data;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace backend.Controllers;
 
@@ -34,24 +35,38 @@ public class TicketsController : ControllerBase
 
         var ticket = EntityMapper.ToEntity(dto);
 
+        // BUG-06: Auto-set RequesterId from JWT claims
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userIdClaim))
+        {
+            // JWT stores AppIdentityUser.Id (GUID string), look up AppUser by email
+            var identityUser = await _db.IdentityUsers.FindAsync(userIdClaim);
+            if (identityUser != null)
+            {
+                var appUser = _db.AppUsers.FirstOrDefault(u => u.Email == identityUser.Email);
+                if (appUser != null)
+                    ticket.RequesterId = appUser.Id;
+            }
+        }
+
         if (string.IsNullOrEmpty(ticket.Code))
-            ticket.Code = "TKT-" + new Random().Next(10000, 99999);
-        
+            ticket.Code = "TKT-" + Random.Shared.Next(10000, 99999); // BUG-12
+
         if (string.IsNullOrEmpty(ticket.CreatedAt))
             ticket.CreatedAt = DateTime.Now.ToString("dd/MM/yyyy");
 
         if (string.IsNullOrEmpty(ticket.UpdatedAt))
             ticket.UpdatedAt = ticket.CreatedAt;
-            
+
         if (string.IsNullOrEmpty(ticket.Status))
             ticket.Status = "Mới";
-            
+
         if (string.IsNullOrEmpty(ticket.Priority))
             ticket.Priority = "Trung bình";
-            
+
         if (string.IsNullOrEmpty(ticket.Channel))
             ticket.Channel = "Trực tiếp";
-            
+
         if (string.IsNullOrEmpty(ticket.Sla))
             ticket.Sla = "8h";
 
@@ -62,7 +77,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Policy = "InfrastructureOrAdmin")]
+    [Authorize(Policy = "AnyUser")]  // BUG-11: was InfrastructureOrAdmin, end-users need to update their own tickets
     public async Task<IActionResult> Update(string id, [FromBody] TicketDto dto)
     {
         var ticket = await _db.Tickets.FindAsync(int.Parse(id));

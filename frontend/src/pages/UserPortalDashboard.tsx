@@ -37,11 +37,15 @@ export function UserPortalDashboard() {
     queryKey: ['user-tickets', user?.id],
     queryFn: async () => {
       const response = await getTicketData()
-      // Filter tickets for current user only
-      if (response.items) {
+      // BUG-05 FIX: Backend now returns requester as FullName (after BUG-01 fix)
+      // Filter by fullName since EntityMapper now resolves navigation properties
+      if (response.items && user) {
         return {
           ...response,
-          items: response.items.filter(t => t.requester === user?.fullName)
+          items: response.items.filter(t =>
+            t.requester === user.fullName ||
+            t.requester === user.id  // fallback: if still returning ID
+          )
         }
       }
       return response

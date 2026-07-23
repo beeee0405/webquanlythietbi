@@ -81,6 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('auth_user')
     localStorage.removeItem('auth_token')
     localStorage.removeItem('refresh_token')
+    // BUG-13: Redirect to login after logout
+    window.location.href = '/login'
   }
 
   return (
