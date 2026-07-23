@@ -66,7 +66,10 @@ public record RoomDto(
     string? Capacity,
     string? Status,
     string? Manager,
-    string? Note);
+    string? Note,
+    int DeviceCount = 0,
+    int ActiveTickets = 0,
+    string? LastInventoryAt = "-");
 
 public record CameraDto(
     string? Id,
@@ -219,8 +222,9 @@ public record MaintenanceManagementResponse(
 
 public record RoomManagementResponse(
     IReadOnlyList<KpiDto> Overview,
-    IReadOnlyList<PointDto> TypeBreakdown,
-    IReadOnlyList<PointDto> StatusBreakdown,
+    IReadOnlyList<PointDto> TypeData,
+    IReadOnlyList<PointDto> StatusData,
+    IReadOnlyList<PointDto> BuildingData,
     IReadOnlyList<RoomDto> Items,
     IReadOnlyList<string> Types,
     IReadOnlyList<string> Buildings);

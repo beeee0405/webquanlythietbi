@@ -50,9 +50,9 @@ public static class DbSeeder
         {
             var rooms = new List<Room>
             {
-                new() { Id = 1, Code = "A3.302", Name = "Phòng Máy Tính", Building = "A", Floor = "3", Type = "Phòng Lab", Capacity = 30, Status = "Hoạt động", Manager = "Thanh Khuông", Note = "Phòng thực hành lập trình" },
-                new() { Id = 2, Code = "A4.101", Name = "Phòng Hệ thống", Building = "A", Floor = "4", Type = "Phòng Server", Capacity = 10, Status = "Hoạt động", Manager = "Phòng Hạ tầng", Note = "Phòng máy chủ chính" },
-                new() { Id = 3, Code = "B2.205", Name = "Phòng Mạng", Building = "B", Floor = "2", Type = "Phòng Lab", Capacity = 25, Status = "Hoạt động", Manager = "Trần Bắc Hoàn", Note = "Phòng thực hành mạng máy tính" }
+                new() { Id = 1, Code = "A3.302", Name = "Phòng Máy Tính", Building = "A", Floor = "3", Type = "Phòng máy", Capacity = 30, Status = "Đang sử dụng", Manager = "Thanh Khuông", Note = "Phòng thực hành lập trình" },
+                new() { Id = 2, Code = "A4.101", Name = "Phòng Hệ thống", Building = "A", Floor = "4", Type = "Server", Capacity = 10, Status = "Đang sử dụng", Manager = "Phòng Hạ tầng", Note = "Phòng máy chủ chính" },
+                new() { Id = 3, Code = "B2.205", Name = "Phòng Mạng", Building = "B", Floor = "2", Type = "Phòng máy", Capacity = 25, Status = "Đang sử dụng", Manager = "Trần Bắc Hoàn", Note = "Phòng thực hành mạng máy tính" }
             };
             db.Rooms.AddRange(rooms);
             await db.SaveChangesAsync();

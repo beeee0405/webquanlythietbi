@@ -149,7 +149,37 @@ public class AppDataService
     public async Task<IReadOnlyList<RoomDto>> GetRoomsAsync()
     {
         var rooms = await _db.Rooms.OrderBy(r => r.Id).ToListAsync();
-        return rooms.Select(EntityMapper.ToDto).ToList();
+        var list = new List<RoomDto>();
+
+        foreach (var r in rooms)
+        {
+            var deviceCount = await _db.Devices.CountAsync(d => d.RoomId == r.Id);
+            var activeTickets = await _db.Tickets.CountAsync(t => t.RoomId == r.Id && t.Status != "Đóng" && t.Status != "Hoàn thành");
+            
+            var lastInventory = await _db.InventorySessions
+                .Where(s => s.RoomId == r.Id && s.Status == "Hoàn thành")
+                .OrderByDescending(s => s.CompletedAt)
+                .Select(s => s.CompletedAt)
+                .FirstOrDefaultAsync();
+
+            list.Add(new RoomDto(
+                r.Id.ToString(),
+                r.Code,
+                r.Name,
+                r.Building,
+                r.Floor,
+                r.Type,
+                r.Capacity.ToString(),
+                r.Status,
+                r.Manager,
+                r.Note,
+                deviceCount,
+                activeTickets,
+                string.IsNullOrEmpty(lastInventory) ? "-" : lastInventory
+            ));
+        }
+
+        return list;
     }
 
     public async Task<IReadOnlyList<CameraDto>> GetCamerasAsync()
@@ -230,9 +260,18 @@ public class AppDataService
             realKpis,
             BuildRoomTypeBreakdown(rooms),
             BuildRoomStatusBreakdown(rooms),
+            BuildRoomBuildingBreakdown(rooms),
             rooms,
-            new List<string> { "Phòng học", "Phòng lab", "Phòng hành chính", "Phòng hợp" },
-            new List<string> { "Tòa A", "Tòa B", "Tòa C", "Tòa D" });
+            new List<string> { "Phòng máy", "Phòng học", "Văn phòng", "Phòng họp", "Server" },
+            new List<string> { "Tòa A", "Tòa B", "Tòa C", "Khác" });
+    }
+
+    private static IReadOnlyList<PointDto> BuildRoomBuildingBreakdown(IReadOnlyList<RoomDto> rooms)
+    {
+        return rooms
+            .GroupBy(r => string.IsNullOrEmpty(r.Building) ? "Khác" : (r.Building.StartsWith("Tòa ") ? r.Building : $"Tòa {r.Building}"))
+            .Select(g => new PointDto(g.Key, g.Count()))
+            .ToList();
     }
 
     public async Task<CameraManagementResponse> GetCameraManagementAsync()

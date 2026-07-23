@@ -53,7 +53,18 @@ export function InventoryDialog({ mode, open, onOpenChange, item, onAdd, onEdit,
   }, [open, mode, item, reset])
 
   const onSubmit = async (v: FormValues) => {
-    try { if (mode === 'add') { await onAdd?.(v); toast.success('Đã thêm thành công'); } else { await onEdit?.(item?.id || v.id, v); toast.success('Đã cập nhật thành công'); } onOpenChange(false); } catch (e) { toast.error('Có lỗi xảy ra'); }
+    try {
+      if (mode === 'add') {
+        await onAdd?.(v)
+        toast.success('Đã thêm thành công')
+      } else {
+        await onEdit?.(item!.id, v)
+        toast.success('Đã cập nhật thành công')
+      }
+      onOpenChange(false)
+    } catch (e) {
+      toast.error('Có lỗi xảy ra')
+    }
   }
 
   const handleDelete = async () => {

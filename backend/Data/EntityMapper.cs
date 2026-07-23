@@ -31,7 +31,8 @@ public static class EntityMapper {
 
     public static RoomDto ToDto(Room r) => new(
         r.Id.ToString(), r.Code, r.Name, r.Building, r.Floor,
-        r.Type, r.Capacity.ToString(), r.Status, r.Manager, r.Note);
+        r.Type, r.Capacity.ToString(), r.Status, r.Manager, r.Note,
+        0, 0, "-");
 
     public static CameraDto ToDto(Camera c) => new(
         c.Id.ToString(), c.Code, c.Name,

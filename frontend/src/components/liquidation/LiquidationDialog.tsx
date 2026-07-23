@@ -42,13 +42,13 @@ interface Props {
 export function LiquidationDialog({ mode, open, onOpenChange, item, onAdd, onEdit, onDelete }: Props) {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { code: '', assetCode: '', assetName: '', room: '', reason: '', condition: 'Hỏng', status: 'Chờ duyệt', requester: '', residualValue: '0', completedAt: '', note: '' },
+    defaultValues: { code: '', assetCode: '', assetName: '', room: '', reason: '', condition: 'Hỏng hoàn toàn', status: 'Chờ duyệt', requester: '', residualValue: '0', completedAt: '', note: '' },
   })
 
   useEffect(() => {
     if (!open) return
     if (mode === 'add') {
-      reset({ code: '', assetCode: '', assetName: '', room: '', reason: '', condition: 'Hỏng', status: 'Chờ duyệt', requester: '', residualValue: '0', completedAt: '', note: '' })
+      reset({ code: '', assetCode: '', assetName: '', room: '', reason: '', condition: 'Hỏng hoàn toàn', status: 'Chờ duyệt', requester: '', residualValue: '0', completedAt: '', note: '' })
     } else if (item) {
       reset({ code: item.code, assetCode: item.assetCode, assetName: item.assetName, room: item.room, reason: item.reason, condition: item.condition as any, status: item.status as any, requester: item.requester, residualValue: item.residualValue, completedAt: item.completedAt, note: item.note })
     }

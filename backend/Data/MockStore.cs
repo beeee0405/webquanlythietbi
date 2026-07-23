@@ -198,9 +198,13 @@ public static class MockStore
         {
             new("Đang sử dụng", 31), new("Bảo trì", 3), new("Tạm ngưng", 2), new("Dự phòng", 2)
         },
+        new List<PointDto>
+        {
+            new("Tòa A", 18), new("Tòa B", 10), new("Tòa C", 6), new("Khác", 4)
+        },
         Rooms,
         new List<string> { "Phòng máy", "Phòng học", "Văn phòng", "Phòng họp", "Server" },
-        new List<string> { "Tất cả", "A1", "A2", "A3", "B1", "C1", "D1" }
+        new List<string> { "Tòa A", "Tòa B", "Tòa C", "Khác" }
     );
 
     public static IReadOnlyList<RoomDto> Rooms { get; } = new List<RoomDto>

@@ -49,7 +49,11 @@ export function RoomManagementPage() {
     const kw = query.trim().toLowerCase()
     return items.filter(r => {
       const matchKw = !kw || [r.code, r.name, r.building, r.floor, r.type, r.manager, r.note].some(v => v?.toLowerCase().includes(kw))
-      return matchKw && (status === 'Tất cả' || r.status === status) && (type === 'Tất cả' || r.type === type) && (building === 'Tất cả' || r.building === building)
+      const matchBuilding = building === 'Tất cả' || 
+        r.building === building || 
+        `Tòa ${r.building}` === building || 
+        r.building === building.replace('Tòa ', '')
+      return matchKw && (status === 'Tất cả' || r.status === status) && (type === 'Tất cả' || r.type === type) && matchBuilding
     })
   }, [items, query, status, type, building])
 
