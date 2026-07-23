@@ -16,6 +16,29 @@ public class DebugController : ControllerBase
         _db = db;
     }
 
+    [HttpGet("ping")]
+    [AllowAnonymous]
+    public IActionResult Ping()
+    {
+        return Ok(new { status = "alive", time = DateTime.UtcNow });
+    }
+
+    [HttpGet("db-status")]
+    [AllowAnonymous]
+    public async Task<IActionResult> DbStatus()
+    {
+        try
+        {
+            var canConnect = await _db.Database.CanConnectAsync();
+            var provider = _db.Database.ProviderName;
+            return Ok(new { connected = canConnect, provider });
+        }
+        catch (Exception ex)
+        {
+            return Ok(new { connected = false, error = ex.Message, innerError = ex.InnerException?.Message });
+        }
+    }
+
     [HttpGet("users")]
     [AllowAnonymous]
     public async Task<IActionResult> GetUsers()
