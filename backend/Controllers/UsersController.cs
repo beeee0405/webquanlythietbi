@@ -40,7 +40,8 @@ public class UsersController : ControllerBase
             return BadRequest("Username và mật khẩu không được để trống");
 
         // Check if username already exists
-        var existingUser = await _db.IdentityUsers.FirstOrDefaultAsync(u => u.Username == dto.Username);
+        var reqUser = dto.Username.ToLower().Trim();
+        var existingUser = await _db.IdentityUsers.FirstOrDefaultAsync(u => u.Username.ToLower() == reqUser);
         if (existingUser != null)
             return BadRequest("Username đã tồn tại");
 

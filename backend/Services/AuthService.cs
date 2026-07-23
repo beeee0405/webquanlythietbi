@@ -30,8 +30,9 @@ public class AuthService : IAuthService
     {
         try
         {
+            var reqUser = request.Username.ToLower().Trim();
             var user = await _db.IdentityUsers
-                .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive);
+                .FirstOrDefaultAsync(u => (u.Username.ToLower() == reqUser || u.Email.ToLower() == reqUser) && u.IsActive);
 
             if (user == null || !VerifyPassword(request.Password, user.PasswordHash))
             {
