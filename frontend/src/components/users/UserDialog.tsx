@@ -52,17 +52,30 @@ export function UserDialog({ mode, open, onOpenChange, item: user, onAdd, onEdit
   }, [open, mode, user, reset])
 
   const onSubmit = async (v: FormValues) => {
-    await new Promise(r => setTimeout(r, 400))
-    if (mode === 'add') { onAdd?.(v); toast.success(`Đã thêm người dùng "${v.fullName}"`) }
-    else { onEdit?.(user!.id, v); toast.success(`Đã cập nhật "${v.fullName}"`) }
-    onOpenChange(false)
+    try {
+      if (mode === 'add') {
+        await onAdd?.(v)
+        toast.success(`Đã thêm người dùng "${v.fullName}"`)
+      } else {
+        await onEdit?.(user!.id, v)
+        toast.success(`Đã cập nhật "${v.fullName}"`)
+      }
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Dialog submit error:', error)
+      toast.error(mode === 'add' ? 'Không thể thêm người dùng' : 'Không thể cập nhật người dùng')
+    }
   }
 
   const handleDelete = async () => {
-    await new Promise(r => setTimeout(r, 300))
-    onDelete?.(user!.id)
-    toast.success(`Đã xóa người dùng "${user?.fullName}"`)
-    onOpenChange(false)
+    try {
+      await onDelete?.(user!.id)
+      toast.success(`Đã xóa người dùng "${user?.fullName}"`)
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Delete error:', error)
+      toast.error('Không thể xóa người dùng')
+    }
   }
 
   return (

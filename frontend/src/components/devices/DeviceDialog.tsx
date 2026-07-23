@@ -68,24 +68,33 @@ export function DeviceDialog({ mode, open, onOpenChange, device, onAdd, onEdit, 
   }, [open, device, mode, reset])
 
   const onSubmit = async (values: FormValues) => {
-    await new Promise(r => setTimeout(r, 400))
-    if (mode === 'add') {
-      onAdd?.(values)
-      toast.success(`Đã thêm thiết bị "${values.name}"`)
-    } else {
-      onEdit?.(device!.id, values)
-      toast.success(`Đã cập nhật thiết bị "${values.name}"`)
+    try {
+      if (mode === 'add') {
+        await onAdd?.(values)
+        toast.success(`Đã thêm thiết bị "${values.name}"`)
+      } else {
+        await onEdit?.(device!.id, values)
+        toast.success(`Đã cập nhật thiết bị "${values.name}"`)
+      }
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Device dialog error:', error)
+      toast.error(mode === 'add' ? 'Không thể thêm thiết bị' : 'Không thể cập nhật thiết bị')
     }
-    onOpenChange(false)
   }
 
   const handleDelete = async () => {
     setDeleting(true)
-    await new Promise(r => setTimeout(r, 400))
-    onDelete?.(device!.id)
-    toast.success(`Đã xóa thiết bị "${device?.name}"`)
-    setDeleting(false)
-    onOpenChange(false)
+    try {
+      await onDelete?.(device!.id)
+      toast.success(`Đã xóa thiết bị "${device?.name}"`)
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Delete device error:', error)
+      toast.error('Không thể xóa thiết bị')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const title = mode === 'add' ? 'Thêm thiết bị mới' : mode === 'edit' ? 'Chỉnh sửa thiết bị' : 'Xóa thiết bị'
