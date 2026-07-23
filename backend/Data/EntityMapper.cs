@@ -188,3 +188,4 @@ public static class EntityMapper {
         Status = u.Status ?? "", CreatedAt = u.CreatedAt ?? "", LastLogin = u.LastLogin ?? ""
     };
 
+}
