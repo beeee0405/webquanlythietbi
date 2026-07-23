@@ -62,8 +62,17 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Quản trị viên", "Chuyên viên Phòng Hạ tầng"));
 });
 
+// Detect DATABASE_URL env var (Render/Supabase) → PostgreSQL, fallback to SQLite for local dev
+var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (dbUrl != null && (dbUrl.StartsWith("postgresql://") || dbUrl.StartsWith("postgres://")))
+        options.UseNpgsql(dbUrl);
+    else
+        options.UseSqlite(dbUrl ?? "Data Source=devices.db");
+});
 
 // Register Services
 builder.Services.AddScoped<AppDataService>();
@@ -78,8 +87,8 @@ try
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    // Ensure database exists (do NOT delete existing data)
-    await db.Database.EnsureCreatedAsync();
+    // Apply migrations (works for both SQLite and PostgreSQL)
+    await db.Database.MigrateAsync();
     await DbSeeder.SeedAsync(db);
     logger.LogInformation("Database đã sẵn sàng. Admin account đã được tạo (nếu chưa tồn tại).");
 }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "JtpvWBcJGjBvs6bfGK1B+dwLUVnVbukNUL1omQHlOcjjZ2WtAtrdyLWGK4W2/43+7IIMIj4Ri8dnpi2x/7sOlg==",
+  "dgSpecHash": "ZSeOVbmqHsLTv7zaKY21yLCQXA47MLi1QmTuX7xl7VrofO4lFbRLoTurm9vNkcPwVjWy8h24qq22fxAdQv7EDA==",
   "success": true,
   "projectFilePath": "D:\\Thực tập Doanh nghiệp\\webquanlythietbi\\backend\\backend.csproj",
   "expectedPackageFiles": [
@@ -48,6 +48,8 @@
     "C:\\Users\\HP\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
     "C:\\Users\\HP\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\HP\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\HP\\.nuget\\packages\\npgsql\\8.0.6\\npgsql.8.0.6.nupkg.sha512",
+    "C:\\Users\\HP\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.11\\npgsql.entityframeworkcore.postgresql.8.0.11.nupkg.sha512",
     "C:\\Users\\HP\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.6\\sqlitepclraw.bundle_e_sqlite3.2.1.6.nupkg.sha512",
     "C:\\Users\\HP\\.nuget\\packages\\sqlitepclraw.core\\2.1.6\\sqlitepclraw.core.2.1.6.nupkg.sha512",
     "C:\\Users\\HP\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.6\\sqlitepclraw.lib.e_sqlite3.2.1.6.nupkg.sha512",

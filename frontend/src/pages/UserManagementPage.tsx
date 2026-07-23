@@ -45,23 +45,20 @@ export function UserManagementPage() {
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<UserItem | undefined>()
-  const [localItems, setLocalItems] = useState<UserItem[] | null>(null)
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ['users-module'],
     queryFn: getUserData,
-    staleTime: 60_000
+    staleTime: 0
   })
 
-  const serverItems = data?.items ?? userQueue
-  const items = localItems ?? serverItems
+  const serverItems = data?.items ?? []
+  const items = serverItems
   const overview = data?.overview ?? userOverview
   const roleData = data?.roleData ?? userRoleData
   const departmentData = data?.departmentData ?? userDepartmentData
   const roles = data?.roles ?? userRoles
   const statuses = userStatuses
-
-  useMemo(() => { if (serverItems.length > 0 && localItems === null) setLocalItems(serverItems) }, [serverItems, localItems])
 
   const filteredItems = useMemo(() => {
     const keyword = query.trim().toLowerCase()
@@ -90,30 +87,30 @@ export function UserManagementPage() {
         role: v.role,
         status: v.status
       })
-      setLocalItems(null) // Clear local state to force refetch
-      queryClient.invalidateQueries({ queryKey: ['users-module'] })
+      await queryClient.invalidateQueries({ queryKey: ['users-module'] })
+      await refetch()
     } catch (error) {
       console.error('Failed to create user:', error)
       throw error
     }
   }
-  
+
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateUser(id, v)
-      setLocalItems(null) // Clear local state to force refetch
-      queryClient.invalidateQueries({ queryKey: ['users-module'] })
+      await queryClient.invalidateQueries({ queryKey: ['users-module'] })
+      await refetch()
     } catch (error) {
       console.error('Failed to update user:', error)
       throw error
     }
   }
-  
+
   const handleDelete = async (id: string) => {
     try {
       await deleteUser(id)
-      setLocalItems(null) // Clear local state to force refetch
-      queryClient.invalidateQueries({ queryKey: ['users-module'] })
+      await queryClient.invalidateQueries({ queryKey: ['users-module'] })
+      await refetch()
     } catch (error) {
       console.error('Failed to delete user:', error)
       throw error

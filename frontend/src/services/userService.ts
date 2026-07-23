@@ -3,7 +3,16 @@ import type { UserManagementResponse, AppUserDto } from '../types/user'
 
 export async function getUserData(): Promise<UserManagementResponse> {
   const response = await http.get('/users')
-  return response.data
+  const raw = response.data
+  // Map backend field names → frontend field names
+  return {
+    overview: raw.overview ?? raw.kpis ?? [],
+    roleData: raw.roleBreakdown ?? raw.roleData ?? [],
+    departmentData: raw.departmentBreakdown ?? raw.departmentData ?? [],
+    items: raw.users ?? raw.items ?? [],
+    roles: raw.roles ?? [],
+    departments: raw.departments ?? [],
+  }
 }
 
 export async function createUser(user: {
