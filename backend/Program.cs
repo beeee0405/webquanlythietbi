@@ -70,11 +70,24 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (dbUrl != null && (dbUrl.StartsWith("postgresql://") || dbUrl.StartsWith("postgres://")))
     {
-        // Npgsql 8+ supports PostgreSQL URI format natively.
-        // Append required SSL params for Supabase if not already present.
-        var separator = dbUrl.Contains('?') ? "&" : "?";
-        var pgUrl = dbUrl + separator + "sslmode=require&Trust+Server+Certificate=true&Timeout=60";
-        options.UseNpgsql(pgUrl);
+        // Parse Supabase URI format: postgresql://user:password@host:port/db
+        var uri = new Uri(dbUrl);
+        var userInfo = uri.UserInfo.Split(':', 2);
+        
+        var builder = new Npgsql.NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.Port > 0 ? uri.Port : 5432,
+            Username = userInfo[0],
+            Password = userInfo.Length > 1 ? userInfo[1] : "",
+            Database = uri.AbsolutePath.TrimStart('/'),
+            SslMode = Npgsql.SslMode.Require,
+            TrustServerCertificate = true,
+            Timeout = 60,
+            CommandTimeout = 60,
+            Pooling = true
+        };
+        options.UseNpgsql(builder.ConnectionString);
     }
     else
         options.UseSqlite(dbUrl ?? "Data Source=devices.db");
