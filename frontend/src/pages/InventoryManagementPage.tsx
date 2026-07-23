@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Filter, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -11,12 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { InventoryDialog } from '../components/inventory/InventoryDialog'
-import {
-  inventoryOverview,
-  inventoryQueue,
-  inventoryStatusData,
-  inventoryStatuses,
-} from '../data/inventory'
 import { getInventoryData, createInventorySession, updateInventorySession, deleteInventorySession } from '../services/inventoryService'
 import { usePermission } from '../hooks/usePermission'
 import type { InventorySession, InventoryStatus } from '../types/inventory'
@@ -32,40 +26,25 @@ function statusTone(status: InventoryStatus) {
   }
 }
 
-function genId() { return `inv-${Date.now()}` }
-
 export function InventoryManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<InventoryStatus | 'Tất cả'>('Tất cả')
 
-  // Dialog state
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<InventorySession | undefined>()
 
-  // Local items state (layered on top of server data)
-  const [localItems, setLocalItems] = useState<InventorySession[] | null>(null)
-
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ['inventory-module'],
     queryFn: getInventoryData,
     staleTime: 60_000
   })
 
-  const overview = data?.overview ?? inventoryOverview
-  const statusData = data?.statusData ?? inventoryStatusData
-  const serverItems = data?.items ?? inventoryQueue
-  const items = localItems ?? serverItems
-  const statuses = data?.statuses ?? inventoryStatuses
-
-  // Sync localItems when server data first loads
-  useMemo(() => {
-    if (serverItems.length > 0 && localItems === null) {
-      setLocalItems(serverItems)
-    }
-  }, [serverItems, localItems])
+  const overview = data?.overview ?? []
+  const statusData = data?.statusData ?? []
+  const items = data?.items ?? []
+  const statuses = data?.statuses ?? ['Đang kiểm', 'Hoàn thành', 'Có lệch']
 
   const filteredItems = useMemo(() => {
     const keyword = query.trim().toLowerCase()
@@ -98,8 +77,7 @@ export function InventoryManagementPage() {
         completedAt: (values as any).completedAt || '-',
         note: (values as any).note || '',
       })
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      refetch()
       toast.success('Tạo đợt kiểm kê thành công')
     } catch (error) {
       console.error('Failed to create inventory:', error)
@@ -110,8 +88,7 @@ export function InventoryManagementPage() {
   const handleEdit = async (id: string, values: any) => {
     try {
       await updateInventorySession(id, values)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      refetch()
       toast.success('Cập nhật đợt kiểm kê thành công')
     } catch (error) {
       console.error('Failed to update inventory:', error)
@@ -122,8 +99,7 @@ export function InventoryManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteInventorySession(id)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['inventory-module'] })
+      refetch()
       toast.success('Xóa đợt kiểm kê thành công')
     } catch (error) {
       console.error('Failed to delete inventory:', error)

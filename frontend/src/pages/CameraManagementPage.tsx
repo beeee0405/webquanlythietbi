@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Filter, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { ChartCard } from '../components/dashboard/ChartCard'
@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { CameraDialog } from '../components/cameras/CameraDialog'
-import { cameraOverview, cameraQueue, cameraRoomLoad, cameraStatusData, cameraStatuses } from '../data/cameras'
 import { getCameraData, createCamera, updateCamera, deleteCamera } from '../services/cameraService'
 import type { CameraItem, CameraStatus } from '../types/camera'
 import { usePermission } from '../hooks/usePermission'
@@ -21,28 +20,20 @@ function statusTone(s: CameraStatus) {
     : 'border-amber-500/20 bg-amber-500/10 text-amber-100'
 }
 
-function genId() { return `cam-${Date.now()}` }
-function today() { return new Date().toLocaleDateString('vi-VN') }
-
 export function CameraManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<CameraStatus | 'Tất cả'>('Tất cả')
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<CameraItem | undefined>()
-  const [localItems, setLocalItems] = useState<CameraItem[] | null>(null)
 
-  const { data } = useQuery({ queryKey: ['cameras-module'], queryFn: getCameraData, staleTime: 60_000 })
-  const serverItems = data?.items ?? cameraQueue
-  const items = localItems ?? serverItems
-  const overview = data?.overview ?? cameraOverview
-  const statusData = data?.statusData ?? cameraStatusData
-  const roomLoad = data?.roomLoad ?? cameraRoomLoad
-  const statuses = data?.statuses ?? cameraStatuses
-
-  useMemo(() => { if (serverItems.length > 0 && localItems === null) setLocalItems(serverItems) }, [serverItems, localItems])
+  const { data, refetch } = useQuery({ queryKey: ['cameras-module'], queryFn: getCameraData, staleTime: 60_000 })
+  const items = data?.items ?? []
+  const overview = data?.overview ?? []
+  const statusData = data?.statusData ?? []
+  const roomLoad = data?.roomLoad ?? []
+  const statuses = data?.statuses ?? ['Hoạt động', 'Lỗi', 'Bảo trì']
 
   const filteredItems = useMemo(() => {
     const kw = query.trim().toLowerCase()
@@ -64,12 +55,11 @@ export function CameraManagementPage() {
         model: v.model ?? '',
         resolution: v.resolution,
         status: v.status,
-        installedAt: v.installedAt ?? today(),
+        installedAt: v.installedAt ?? new Date().toLocaleDateString('vi-VN'),
         warranty: v.warranty ?? '',
         note: v.note ?? ''
       })
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to create camera:', error)
       throw error
@@ -79,8 +69,7 @@ export function CameraManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateCamera(id, v)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to update camera:', error)
       throw error
@@ -90,8 +79,7 @@ export function CameraManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteCamera(id)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['cameras-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to delete camera:', error)
       throw error

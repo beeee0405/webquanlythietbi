@@ -2,7 +2,7 @@ export type KPIItem = {
   label: string
   value: string
   delta: string
-  tone?: 'primary' | 'emerald' | 'amber' | 'zinc'
+  tone?: string
 }
 
 export type DeviceRecord = {

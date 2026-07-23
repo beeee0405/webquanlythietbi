@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Filter, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -11,12 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { TransferDialog } from '../components/transfer/TransferDialog'
-import {
-  transferOverview,
-  transferQueue,
-  transferStatusData,
-  transferStatuses,
-} from '../data/transfer'
 import { getTransferData, createTransfer, updateTransfer, deleteTransfer } from '../services/transferService'
 import { usePermission } from '../hooks/usePermission'
 import type { TransferItem, TransferStatus } from '../types/transfer'
@@ -34,40 +28,25 @@ function statusTone(status: TransferStatus) {
   }
 }
 
-function genId() { return `trf-${Date.now()}` }
-
 export function TransferManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<TransferStatus | 'Tất cả'>('Tất cả')
 
-  // Dialog state
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<TransferItem | undefined>()
 
-  // Local items state (layered on top of server data)
-  const [localItems, setLocalItems] = useState<TransferItem[] | null>(null)
-
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ['transfer-module'],
     queryFn: getTransferData,
     staleTime: 60_000
   })
 
-  const overview = data?.overview ?? transferOverview
-  const statusData = data?.statusData ?? transferStatusData
-  const serverItems = data?.items ?? transferQueue
-  const items = localItems ?? serverItems
-  const statuses = data?.statuses ?? transferStatuses
-
-  // Sync localItems when server data first loads
-  useMemo(() => {
-    if (serverItems.length > 0 && localItems === null) {
-      setLocalItems(serverItems)
-    }
-  }, [serverItems, localItems])
+  const overview = data?.overview ?? []
+  const statusData = data?.statusData ?? []
+  const items = data?.items ?? []
+  const statuses = data?.statuses ?? ['Chờ duyệt', 'Đã duyệt', 'Hoàn thành', 'Từ chối']
 
   const filteredItems = useMemo(() => {
     const keyword = query.trim().toLowerCase()
@@ -100,8 +79,7 @@ export function TransferManagementPage() {
         approvedAt: (values as any).approvedAt || '-',
         note: (values as any).note || '',
       })
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      refetch()
       toast.success('Tạo yêu cầu điều chuyển thành công')
     } catch (error) {
       console.error('Failed to create transfer:', error)
@@ -112,8 +90,7 @@ export function TransferManagementPage() {
   const handleEdit = async (id: string, values: any) => {
     try {
       await updateTransfer(id, values)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      refetch()
       toast.success('Cập nhật yêu cầu điều chuyển thành công')
     } catch (error) {
       console.error('Failed to update transfer:', error)
@@ -124,8 +101,7 @@ export function TransferManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteTransfer(id)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['transfer-module'] })
+      refetch()
       toast.success('Xóa yêu cầu điều chuyển thành công')
     } catch (error) {
       console.error('Failed to delete transfer:', error)

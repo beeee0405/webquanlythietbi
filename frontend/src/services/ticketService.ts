@@ -1,48 +1,34 @@
 import { http } from './http'
-import {
-  ticketAgeBuckets,
-  ticketChannelData,
-  ticketChannels,
-  ticketOverview,
-  ticketPriorityData,
-  ticketPriorities,
-  ticketQueue,
-  ticketSlaTrendData,
-  ticketStatusData,
-  ticketStatuses
-} from '../data/tickets'
+import type { TicketItem } from '../types/ticket'
+import type { KpiDto, PointDto } from '../types/common'
 
-export type TicketApiData = {
-  overview: typeof ticketOverview
-  statusData: typeof ticketStatusData
-  priorityData: typeof ticketPriorityData
-  channelData: typeof ticketChannelData
-  slaTrendData: typeof ticketSlaTrendData
-  ageBuckets: typeof ticketAgeBuckets
-  items: typeof ticketQueue
+export interface TicketApiData {
+  overview: KpiDto[]
+  statusData: PointDto[]
+  priorityData: PointDto[]
+  channelData: PointDto[]
+  slaTrendData: PointDto[]
+  ageBuckets: PointDto[]
+  items: TicketItem[]
   statuses: string[]
   priorities: string[]
   channels: string[]
 }
 
-const fallback: TicketApiData = {
-  overview: ticketOverview,
-  statusData: ticketStatusData,
-  priorityData: ticketPriorityData,
-  channelData: ticketChannelData,
-  slaTrendData: ticketSlaTrendData,
-  ageBuckets: ticketAgeBuckets,
-  items: ticketQueue,
-  statuses: ticketStatuses,
-  priorities: ticketPriorities,
-  channels: ticketChannels
+export async function getTicketData(): Promise<TicketApiData> {
+  const response = await http.get<TicketApiData>('/tickets')
+  return response.data
 }
 
-export async function getTicketData(): Promise<TicketApiData> {
-  try {
-    const response = await http.get<TicketApiData>('/tickets')
-    return response.data
-  } catch {
-    return fallback
-  }
+export async function createTicket(item: Partial<TicketItem>): Promise<TicketItem> {
+  const response = await http.post('/tickets', item)
+  return response.data
+}
+
+export async function updateTicket(id: string, item: Partial<TicketItem>): Promise<void> {
+  await http.put(`/tickets/${id}`, item)
+}
+
+export async function deleteTicket(id: string): Promise<void> {
+  await http.delete(`/tickets/${id}`)
 }

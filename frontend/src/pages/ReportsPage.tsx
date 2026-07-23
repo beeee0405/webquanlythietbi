@@ -5,15 +5,6 @@ import { ChartCard } from '../components/dashboard/ChartCard'
 import { KpiGrid } from '../components/dashboard/KpiGrid'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-import {
-  reportDeviceByCategoryData,
-  reportDeviceByStatusData,
-  reportMaintenanceCostByMonthData,
-  reportOverview,
-  reportRoomWorkloadData,
-  reportTicketByMonthData,
-  reportTicketByPriorityData,
-} from '../data/reports'
 import { getReportData } from '../services/reportService'
 
 export function ReportsPage() {
@@ -23,13 +14,13 @@ export function ReportsPage() {
     staleTime: 60_000
   })
 
-  const overview = data?.overview ?? reportOverview
-  const deviceByCategory = data?.deviceByCategory ?? reportDeviceByCategoryData
-  const deviceByStatus = data?.deviceByStatus ?? reportDeviceByStatusData
-  const ticketByMonth = data?.ticketByMonth ?? reportTicketByMonthData
-  const maintenanceCostByMonth = data?.maintenanceCostByMonth ?? reportMaintenanceCostByMonthData
-  const ticketByPriority = data?.ticketByPriority ?? reportTicketByPriorityData
-  const roomWorkload = data?.roomWorkload ?? reportRoomWorkloadData
+  const overview = data?.overview ?? []
+  const deviceByCategory = data?.deviceByCategory ?? []
+  const deviceByStatus = data?.deviceByStatus ?? []
+  const ticketByMonth = data?.ticketByMonth ?? []
+  const maintenanceCostByMonth = data?.maintenanceCostByMonth ?? []
+  const ticketByPriority = data?.ticketByPriority ?? []
+  const roomWorkload = data?.roomWorkload ?? []
 
   const totalDevs = overview.find(o => o.label === 'Tổng thiết bị')?.value || '0'
   const activeDevs = deviceByStatus.find(s => s.name === 'Hoạt động')?.value || 0

@@ -9,3 +9,8 @@ export interface KpiDto {
     delta: string
     tone: string
 }
+
+export interface AlertDto {
+    label: string
+    value: string
+}

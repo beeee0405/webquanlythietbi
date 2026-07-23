@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Filter, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { ChartCard } from '../components/dashboard/ChartCard'
@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { SoftwareDialog } from '../components/software/SoftwareDialog'
-import { softwareCategoryData, softwareCategories, softwareLicenseTypeData, softwareOverview, softwareQueue, softwareStatuses } from '../data/software'
 import { getSoftwareData, createSoftware, updateSoftware, deleteSoftware } from '../services/softwareService'
 import type { SoftwareItem, SoftwareStatus, SoftwareCategory } from '../types/software'
 import { usePermission } from '../hooks/usePermission'
@@ -21,10 +20,7 @@ function statusTone(s: SoftwareStatus) {
     : 'border-red-500/20 bg-red-500/10 text-red-100'
 }
 
-function genId() { return `sw-${Date.now()}` }
-
 export function SoftwareManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<SoftwareStatus | 'Tất cả'>('Tất cả')
@@ -32,18 +28,14 @@ export function SoftwareManagementPage() {
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<SoftwareItem | undefined>()
-  const [localItems, setLocalItems] = useState<SoftwareItem[] | null>(null)
 
-  const { data } = useQuery({ queryKey: ['software-module'], queryFn: getSoftwareData, staleTime: 60_000 })
-  const serverItems = data?.items ?? softwareQueue
-  const items = localItems ?? serverItems
-  const overview = data?.overview ?? softwareOverview
-  const categoryData = data?.categoryData ?? softwareCategoryData
-  const licenseTypeData = data?.licenseTypeData ?? softwareLicenseTypeData
-  const categories = data?.categories ?? softwareCategories
-  const statuses = data?.statuses ?? softwareStatuses
-
-  useMemo(() => { if (serverItems.length > 0 && localItems === null) setLocalItems(serverItems) }, [serverItems, localItems])
+  const { data, refetch } = useQuery({ queryKey: ['software-module'], queryFn: getSoftwareData, staleTime: 60_000 })
+  const items = data?.items ?? []
+  const overview = data?.overview ?? []
+  const categoryData = data?.categoryData ?? []
+  const licenseTypeData = data?.licenseTypeData ?? []
+  const categories = data?.categories ?? ['Hệ điều hành', 'Văn phòng', 'Thiết kế', 'Lập trình', 'Bảo mật', 'Tiện ích']
+  const statuses = data?.statuses ?? ['Đang dùng', 'Sắp hết hạn', 'Hết hạn']
 
   const filteredItems = useMemo(() => {
     const kw = query.trim().toLowerCase()
@@ -70,8 +62,7 @@ export function SoftwareManagementPage() {
         status: v.status,
         note: v.note ?? ''
       })
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['software-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to create software:', error)
       throw error
@@ -81,8 +72,7 @@ export function SoftwareManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateSoftware(id, v)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['software-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to update software:', error)
       throw error
@@ -92,8 +82,7 @@ export function SoftwareManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteSoftware(id)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['software-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to delete software:', error)
       throw error

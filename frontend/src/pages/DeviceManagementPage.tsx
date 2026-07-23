@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Pencil, Plus, ScanQrCode, Search, SlidersHorizontal, Trash2 } from 'lucide-react'
 import { ChartCard } from '../components/dashboard/ChartCard'
@@ -11,7 +11,6 @@ import { Badge } from '../components/ui/badge'
 import { Select } from '../components/ui/select'
 import { DataTable } from '../components/dashboard/DataTable'
 import { DeviceDialog } from '../components/devices/DeviceDialog'
-import { deviceOverview, deviceLocationData, deviceStatusData, deviceStatuses } from '../data/devices'
 import type { DeviceItem, DeviceStatus } from '../types/device'
 import { getDeviceData, createDevice, updateDevice, deleteDevice } from '../services/deviceService'
 import { usePermission } from '../hooks/usePermission'
@@ -26,11 +25,7 @@ function statusTone(status: DeviceStatus) {
   }
 }
 
-function genId() { return `dev-${Date.now()}` }
-function today() { return new Date().toLocaleDateString('vi-VN') }
-
 export function DeviceManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<DeviceStatus | 'Tất cả'>('Tất cả')
@@ -41,33 +36,23 @@ export function DeviceManagementPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<DeviceItem | undefined>()
 
-  // Local items state (layered on top of server data)
-  const [localItems, setLocalItems] = useState<DeviceItem[] | null>(null)
-
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ['devices-module'],
     queryFn: getDeviceData,
     staleTime: 60_000,
   })
 
-  const serverItems = data?.items ?? []
-  const items = localItems ?? serverItems
-  const overview = data?.overview ?? deviceOverview
-  const statusBreakdown = data?.statusData ?? deviceStatusData
-  const roomLoad = data?.locationData ?? deviceLocationData
+  const items = data?.devices ?? []
+  const overview = data?.overview ?? []
+  const statusBreakdown = data?.statusBreakdown ?? []
+  const roomLoad = data?.roomLoad ?? []
+  const deviceStatuses = ['Hoạt động', 'Đang sửa', 'Bảo trì', 'Hỏng', 'Chờ thanh lý']
   const categories = useMemo(() => {
     const base = data?.categories ?? []
     const fromItems = Array.from(new Set(items.map(i => i.category)))
     const merged = Array.from(new Set([...base, ...fromItems]))
     return ['Tất cả', ...merged.filter(c => c !== 'Tất cả')]
   }, [data?.categories, items])
-
-  // Sync localItems when server data first loads
-  useMemo(() => {
-    if (serverItems.length > 0 && localItems === null) {
-      setLocalItems(serverItems)
-    }
-  }, [serverItems, localItems])
 
   const filteredItems = useMemo(() => {
     const keyword = query.trim().toLowerCase()
@@ -96,8 +81,7 @@ export function DeviceManagementPage() {
         warranty: (values as any).warranty,
         serial: (values as any).serial ?? '',
       })
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['devices-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to create device:', error)
       throw error
@@ -107,8 +91,7 @@ export function DeviceManagementPage() {
   const handleEdit = async (id: string, values: any) => {
     try {
       await updateDevice(id, values)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['devices-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to update device:', error)
       throw error
@@ -118,8 +101,7 @@ export function DeviceManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteDevice(id)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['devices-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to delete device:', error)
       throw error

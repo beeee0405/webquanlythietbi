@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { ArrowDown, ArrowUp, CalendarClock, Filter, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { ChartCard } from '../components/dashboard/ChartCard'
@@ -10,7 +10,6 @@ import { Select } from '../components/ui/select'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { MaintenanceDialog } from '../components/maintenance/MaintenanceDialog'
-import { maintenanceBudgetData, maintenanceOverview, maintenancePriorities, maintenanceQueue, maintenanceStatuses, maintenanceStatusData, maintenanceTrendData, maintenanceTypes, maintenanceTypeData } from '../data/maintenance'
 import type { MaintenanceItem, MaintenancePriority, MaintenanceStatus, MaintenanceType } from '../types/maintenance'
 import { getMaintenanceData, createMaintenance, updateMaintenance, deleteMaintenance } from '../services/maintenanceService'
 import { usePermission } from '../hooks/usePermission'
@@ -28,12 +27,7 @@ function statusTone(s: MaintenanceStatus) {
     : 'border-zinc-500/20 bg-zinc-500/10 text-zinc-100'
 }
 
-let mCounter = 300
-function genCode() { return `BT-${++mCounter}` }
-function genId() { return `mt-${Date.now()}` }
-
 export function MaintenancePage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<MaintenanceStatus | 'Tất cả'>('Tất cả')
@@ -44,22 +38,18 @@ export function MaintenancePage() {
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<MaintenanceItem | undefined>()
-  const [localItems, setLocalItems] = useState<MaintenanceItem[] | null>(null)
 
-  const { data } = useQuery({ queryKey: ['maintenance-module'], queryFn: getMaintenanceData, staleTime: 60_000 })
+  const { data, refetch } = useQuery({ queryKey: ['maintenance-module'], queryFn: getMaintenanceData, staleTime: 60_000 })
 
-  const serverItems = data?.items ?? maintenanceQueue
-  const items = localItems ?? serverItems
-  const overview = data?.overview ?? maintenanceOverview
-  const statusData = data?.statusData ?? maintenanceStatusData
-  const typeData = data?.typeData ?? maintenanceTypeData
-  const trendData = data?.trendData ?? maintenanceTrendData
-  const budgetData = data?.budgetData ?? maintenanceBudgetData
-  const statuses = data?.statuses ?? maintenanceStatuses
-  const priorities = data?.priorities ?? maintenancePriorities
-  const types = data?.types ?? maintenanceTypes
-
-  useMemo(() => { if (serverItems.length > 0 && localItems === null) setLocalItems(serverItems) }, [serverItems, localItems])
+  const items = data?.items ?? []
+  const overview = data?.overview ?? []
+  const statusData = data?.statusData ?? []
+  const typeData = data?.typeData ?? []
+  const trendData = data?.trendData ?? []
+  const budgetData = data?.budgetData ?? []
+  const statuses = data?.statuses ?? ['Chờ duyệt', 'Đang thực hiện', 'Hoàn thành', 'Tạm hoãn']
+  const priorities = data?.priorities ?? ['Khẩn cấp', 'Cao', 'Trung bình', 'Thấp']
+  const types = data?.types ?? ['Phòng ngừa', 'Sửa chữa', 'Vệ sinh', 'Kiểm tra']
 
   const filteredItems = useMemo(() => {
     const kw = query.trim().toLowerCase()
@@ -103,8 +93,7 @@ export function MaintenancePage() {
         cost: v.cost ?? '0',
         note: v.note ?? ''
       })
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to create maintenance:', error)
       throw error
@@ -114,8 +103,7 @@ export function MaintenancePage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateMaintenance(id, v)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to update maintenance:', error)
       throw error
@@ -125,8 +113,7 @@ export function MaintenancePage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteMaintenance(id)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['maintenance-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to delete maintenance:', error)
       throw error

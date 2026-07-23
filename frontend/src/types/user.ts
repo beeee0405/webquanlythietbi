@@ -16,11 +16,13 @@ export interface UserItem {
   lastLogin: string
 }
 
+export type AppUserDto = UserItem
+
 export interface UserManagementResponse {
   overview: KpiDto[]
-  roleData: PointDto[]
-  departmentData: PointDto[]
-  items: UserItem[]
+  roleBreakdown: PointDto[]
+  departmentBreakdown: PointDto[]
+  users: UserItem[]
   roles: string[]
   departments: string[]
 }

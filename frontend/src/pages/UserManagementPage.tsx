@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Filter, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { ChartCard } from '../components/dashboard/ChartCard'
@@ -10,14 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { UserDialog } from '../components/users/UserDialog'
-import {
-  userDepartmentData,
-  userOverview,
-  userQueue,
-  userRoleData,
-  userRoles,
-  userStatuses,
-} from '../data/users'
 import { getUserData, createUser, updateUser, deleteUser } from '../services/userService'
 import type { UserItem, UserRole, UserStatus } from '../types/user'
 import { usePermission } from '../hooks/usePermission'
@@ -33,11 +25,7 @@ function statusTone(status: UserStatus) {
   }
 }
 
-function genId() { return `user-${Date.now()}` }
-function today() { return new Date().toLocaleDateString('vi-VN') }
-
 export function UserManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<UserStatus | 'Tất cả'>('Tất cả')
@@ -52,13 +40,12 @@ export function UserManagementPage() {
     staleTime: 0
   })
 
-  const serverItems = data?.items ?? []
-  const items = serverItems
-  const overview = data?.overview ?? userOverview
-  const roleData = data?.roleData ?? userRoleData
-  const departmentData = data?.departmentData ?? userDepartmentData
-  const roles = data?.roles ?? userRoles
-  const statuses = userStatuses
+  const items = data?.users ?? []
+  const overview = data?.overview ?? []
+  const roleData = data?.roleBreakdown ?? []
+  const departmentData = data?.departmentBreakdown ?? []
+  const roles = data?.roles ?? ['Admin', 'Manager', 'Staff', 'User']
+  const statuses = ['Đang hoạt động', 'Nghỉ phép', 'Đã nghỉ việc']
 
   const filteredItems = useMemo(() => {
     const keyword = query.trim().toLowerCase()
@@ -87,7 +74,6 @@ export function UserManagementPage() {
         role: v.role,
         status: v.status
       })
-      await queryClient.invalidateQueries({ queryKey: ['users-module'] })
       await refetch()
     } catch (error) {
       console.error('Failed to create user:', error)
@@ -98,7 +84,6 @@ export function UserManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateUser(id, v)
-      await queryClient.invalidateQueries({ queryKey: ['users-module'] })
       await refetch()
     } catch (error) {
       console.error('Failed to update user:', error)
@@ -109,7 +94,6 @@ export function UserManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteUser(id)
-      await queryClient.invalidateQueries({ queryKey: ['users-module'] })
       await refetch()
     } catch (error) {
       console.error('Failed to delete user:', error)

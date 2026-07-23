@@ -13,14 +13,16 @@ export interface DeviceItem {
   status: DeviceStatus
   warranty: string
   serial: string
-  purchasedAt: string
+  purchaseDate: string
   updatedAt: string
 }
 
+export type DeviceDto = DeviceItem
+
 export interface DeviceManagementResponse {
   overview: KpiDto[]
-  statusData: PointDto[]
-  locationData: PointDto[]
-  items: DeviceItem[]
+  statusBreakdown: PointDto[]
+  roomLoad: PointDto[]
+  devices: DeviceItem[]
   categories: string[]
 }

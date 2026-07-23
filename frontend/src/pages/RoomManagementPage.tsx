@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { ClipboardCheck, Filter, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { ChartCard } from '../components/dashboard/ChartCard'
@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { RoomDialog } from '../components/rooms/RoomDialog'
-import { roomBuildingData, roomBuildings, roomOverview, roomQueue, roomStatusData, roomStatuses, roomTypeData, roomTypes } from '../data/rooms'
 import { getRoomData, createRoom, updateRoom, deleteRoom } from '../services/roomService'
 import type { RoomItem, RoomStatus, RoomType } from '../types/room'
 import { usePermission } from '../hooks/usePermission'
@@ -24,11 +23,7 @@ function statusTone(status: RoomStatus) {
   }
 }
 
-function genId() { return `room-${Date.now()}` }
-function today() { return new Date().toLocaleDateString('vi-VN') }
-
 export function RoomManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<RoomStatus | 'Tất cả'>('Tất cả')
@@ -38,21 +33,17 @@ export function RoomManagementPage() {
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<RoomItem | undefined>()
-  const [localItems, setLocalItems] = useState<RoomItem[] | null>(null)
 
-  const { data } = useQuery({ queryKey: ['rooms-module'], queryFn: getRoomData, staleTime: 60_000 })
+  const { data, refetch } = useQuery({ queryKey: ['rooms-module'], queryFn: getRoomData, staleTime: 60_000 })
 
-  const serverItems = data?.items ?? roomQueue
-  const items = localItems ?? serverItems
-  const overview = data?.overview ?? roomOverview
-  const statusData = data?.statusData ?? roomStatusData
-  const typeData = data?.typeData ?? roomTypeData
-  const buildingData = data?.buildingData ?? roomBuildingData
-  const statuses = data?.statuses ?? roomStatuses
-  const types = data?.types ?? roomTypes
-  const buildings = data?.buildings ?? roomBuildings
-
-  useMemo(() => { if (serverItems.length > 0 && localItems === null) setLocalItems(serverItems) }, [serverItems, localItems])
+  const items = data?.items ?? []
+  const overview = data?.overview ?? []
+  const statusData = data?.statusData ?? []
+  const typeData = data?.typeData ?? []
+  const buildingData = data?.buildingData ?? []
+  const statuses = data?.statuses ?? ['Đang sử dụng', 'Bảo trì', 'Tạm ngưng', 'Dự phòng']
+  const types = data?.types ?? ['Phòng máy thực hành', 'Phòng server', 'Phòng lý thuyết', 'Phòng họp', 'Kho', 'Khác']
+  const buildings = data?.buildings ?? ['Tòa A', 'Tòa B', 'Tòa C', 'Khác']
 
   const filteredItems = useMemo(() => {
     const kw = query.trim().toLowerCase()
@@ -79,8 +70,7 @@ export function RoomManagementPage() {
         capacity: v.capacity,
         note: v.note ?? ''
       })
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to create room:', error)
       throw error
@@ -90,8 +80,7 @@ export function RoomManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateRoom(id, v)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to update room:', error)
       throw error
@@ -101,8 +90,7 @@ export function RoomManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteRoom(id)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['rooms-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to delete room:', error)
       throw error

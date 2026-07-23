@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Filter, Pencil, Plus, ScanQrCode, Search, Trash2 } from 'lucide-react'
 import { ChartCard } from '../components/dashboard/ChartCard'
@@ -10,9 +10,8 @@ import { Select } from '../components/ui/select'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { TicketDialog } from '../components/tickets/TicketDialog'
-import { ticketAgeBuckets, ticketChannelData, ticketChannels, ticketOverview, ticketPriorityData, ticketPriorities, ticketQueue, ticketSlaTrendData, ticketStatusData, ticketStatuses } from '../data/tickets'
 import type { TicketItem, TicketPriority, TicketStatus } from '../types/ticket'
-import { getTicketData } from '../services/ticketService'
+import { getTicketData, createTicket, updateTicket, deleteTicket } from '../services/ticketService'
 import { usePermission } from '../hooks/usePermission'
 
 function priorityTone(p: TicketPriority) {
@@ -29,13 +28,7 @@ function statusTone(s: TicketStatus) {
     : 'border-slate-500/20 bg-slate-500/10 text-slate-100'
 }
 
-let ticketCounter = 200
-function genCode() { return `TK-${++ticketCounter}` }
-function genId() { return `ticket-${Date.now()}` }
-function today() { return new Date().toLocaleDateString('vi-VN') }
-
 export function TicketManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<TicketStatus | 'Tất cả'>('Tất cả')
@@ -45,23 +38,19 @@ export function TicketManagementPage() {
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<TicketItem | undefined>()
-  const [localItems, setLocalItems] = useState<TicketItem[] | null>(null)
 
-  const { data } = useQuery({ queryKey: ['tickets-module'], queryFn: getTicketData, staleTime: 60_000 })
+  const { data, refetch } = useQuery({ queryKey: ['tickets-module'], queryFn: getTicketData, staleTime: 60_000 })
 
-  const serverItems = data?.items ?? ticketQueue
-  const items = localItems ?? serverItems
-  const overview = data?.overview ?? ticketOverview
-  const statusData = data?.statusData ?? ticketStatusData
-  const priorityData = data?.priorityData ?? ticketPriorityData
-  const channelData = data?.channelData ?? ticketChannelData
-  const slaTrendData = data?.slaTrendData ?? ticketSlaTrendData
-  const ageBuckets = data?.ageBuckets ?? ticketAgeBuckets
-  const statuses = data?.statuses ?? ticketStatuses
-  const priorities = data?.priorities ?? ticketPriorities
-  const channels = data?.channels ?? ticketChannels
-
-  useMemo(() => { if (serverItems.length > 0 && localItems === null) setLocalItems(serverItems) }, [serverItems, localItems])
+  const items = data?.items ?? []
+  const overview = data?.overview ?? []
+  const statusData = data?.statusData ?? []
+  const priorityData = data?.priorityData ?? []
+  const channelData = data?.channelData ?? []
+  const slaTrendData = data?.slaTrendData ?? []
+  const ageBuckets = data?.ageBuckets ?? []
+  const statuses = data?.statuses ?? ['Mới', 'Đang xử lý', 'Chờ phản hồi', 'Hoàn thành', 'Đóng']
+  const priorities = data?.priorities ?? ['Khẩn cấp', 'Cao', 'Trung bình', 'Thấp']
+  const channels = data?.channels ?? ['QR', 'Email', 'Điện thoại', 'Trực tiếp', 'Hệ thống']
 
   const filteredItems = useMemo(() => {
     const kw = query.trim().toLowerCase()
@@ -75,18 +64,29 @@ export function TicketManagementPage() {
   const openEdit = (t: TicketItem) => { setDialogMode('edit'); setSelected(t); setDialogOpen(true) }
   const openDelete = (t: TicketItem) => { setDialogMode('delete'); setSelected(t); setDialogOpen(true) }
 
-  const handleAdd = (v: any) => {
-    const newItem: TicketItem = { id: genId(), code: genCode(), subject: v.subject, requester: v.requester, room: v.room, device: v.device ?? '', category: v.category, priority: v.priority, status: v.status, channel: v.channel, assignee: v.assignee ?? '', sla: v.sla ?? '8h', createdAt: today(), updatedAt: today() }
-    setLocalItems(prev => [newItem, ...(prev ?? serverItems)])
-    queryClient.invalidateQueries({ queryKey: ['tickets-module'] })
+  const handleAdd = async (v: any) => {
+    try {
+      await createTicket(v)
+      refetch()
+    } catch (e) {
+      console.error(e)
+    }
   }
-  const handleEdit = (id: string, v: any) => {
-    setLocalItems(prev => (prev ?? serverItems).map(t => t.id === id ? { ...t, ...v, updatedAt: today() } : t))
-    queryClient.invalidateQueries({ queryKey: ['tickets-module'] })
+  const handleEdit = async (id: string, v: any) => {
+    try {
+      await updateTicket(id, v)
+      refetch()
+    } catch (e) {
+      console.error(e)
+    }
   }
-  const handleDelete = (id: string) => {
-    setLocalItems(prev => (prev ?? serverItems).filter(t => t.id !== id))
-    queryClient.invalidateQueries({ queryKey: ['tickets-module'] })
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTicket(id)
+      refetch()
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const urgentCount = filteredItems.filter(t => t.priority === 'Khẩn cấp').length

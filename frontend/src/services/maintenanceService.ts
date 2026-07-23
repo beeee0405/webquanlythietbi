@@ -1,55 +1,30 @@
 import { http } from './http'
-import {
-  maintenanceBudgetData,
-  maintenanceOverview,
-  maintenancePriorities,
-  maintenanceQueue,
-  maintenanceStatuses,
-  maintenanceStatusData,
-  maintenanceTrendData,
-  maintenanceTypes,
-  maintenanceTypeData
-} from '../data/maintenance'
+import type { MaintenanceItem } from '../types/maintenance'
+import type { KpiDto, PointDto } from '../types/common'
 
-export type MaintenanceApiData = {
-  overview: typeof maintenanceOverview
-  statusData: typeof maintenanceStatusData
-  typeData: typeof maintenanceTypeData
-  trendData: typeof maintenanceTrendData
-  budgetData: typeof maintenanceBudgetData
-  items: typeof maintenanceQueue
+export interface MaintenanceApiData {
+  overview: KpiDto[]
+  statusData: PointDto[]
+  typeData: PointDto[]
+  trendData: PointDto[]
+  budgetData: PointDto[]
+  items: MaintenanceItem[]
   statuses: string[]
   priorities: string[]
   types: string[]
 }
 
-const fallback: MaintenanceApiData = {
-  overview: maintenanceOverview,
-  statusData: maintenanceStatusData,
-  typeData: maintenanceTypeData,
-  trendData: maintenanceTrendData,
-  budgetData: maintenanceBudgetData,
-  items: maintenanceQueue,
-  statuses: maintenanceStatuses,
-  priorities: maintenancePriorities,
-  types: maintenanceTypes
-}
-
 export async function getMaintenanceData(): Promise<MaintenanceApiData> {
-  try {
-    const response = await http.get<MaintenanceApiData>('/maintenance')
-    return response.data
-  } catch {
-    return fallback
-  }
+  const response = await http.get<MaintenanceApiData>('/maintenance')
+  return response.data
 }
 
-export async function createMaintenance(item: any): Promise<any> {
+export async function createMaintenance(item: Partial<MaintenanceItem>): Promise<MaintenanceItem> {
   const response = await http.post('/maintenance', item)
   return response.data
 }
 
-export async function updateMaintenance(id: string, item: any): Promise<void> {
+export async function updateMaintenance(id: string, item: Partial<MaintenanceItem>): Promise<void> {
   await http.put(`/maintenance/${id}`, item)
 }
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Filter, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { ChartCard } from '../components/dashboard/ChartCard'
@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { NetworkDialog } from '../components/network/NetworkDialog'
-import { networkOverview, networkQueue, networkStatusData, networkStatuses, networkTypeData, networkTypes } from '../data/network'
 import { getNetworkData, createNetworkDevice, updateNetworkDevice, deleteNetworkDevice } from '../services/networkService'
 import type { NetworkItem, NetworkStatus, NetworkType } from '../types/network'
 import { usePermission } from '../hooks/usePermission'
@@ -21,11 +20,7 @@ function statusTone(s: NetworkStatus) {
     : 'border-red-500/20 bg-red-500/10 text-red-100'
 }
 
-function genId() { return `net-${Date.now()}` }
-function today() { return new Date().toLocaleDateString('vi-VN') }
-
 export function NetworkManagementPage() {
-  const queryClient = useQueryClient()
   const { canCreate, canEdit, canDelete } = usePermission()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<NetworkStatus | 'Tất cả'>('Tất cả')
@@ -33,18 +28,14 @@ export function NetworkManagementPage() {
   const [dialogMode, setDialogMode] = useState<'add' | 'edit' | 'delete'>('add')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<NetworkItem | undefined>()
-  const [localItems, setLocalItems] = useState<NetworkItem[] | null>(null)
 
-  const { data } = useQuery({ queryKey: ['network-module'], queryFn: getNetworkData, staleTime: 60_000 })
-  const serverItems = data?.items ?? networkQueue
-  const items = localItems ?? serverItems
-  const overview = data?.overview ?? networkOverview
-  const typeData = data?.typeData ?? networkTypeData
-  const statusData = data?.statusData ?? networkStatusData
-  const types = data?.types ?? networkTypes
-  const statuses = data?.statuses ?? networkStatuses
-
-  useMemo(() => { if (serverItems.length > 0 && localItems === null) setLocalItems(serverItems) }, [serverItems, localItems])
+  const { data, refetch } = useQuery({ queryKey: ['network-module'], queryFn: getNetworkData, staleTime: 60_000 })
+  const items = data?.items ?? []
+  const overview = data?.overview ?? []
+  const typeData = data?.typeData ?? []
+  const statusData = data?.statusData ?? []
+  const types = data?.types ?? ['Core Switch', 'Access Switch', 'Router', 'Firewall', 'Access Point', 'Controller', 'Server']
+  const statuses = data?.statuses ?? ['Hoạt động', 'Cảnh báo', 'Lỗi', 'Bảo trì']
 
   const filteredItems = useMemo(() => {
     const kw = query.trim().toLowerCase()
@@ -70,11 +61,10 @@ export function NetworkManagementPage() {
         port: v.port ?? '',
         status: v.status,
         warranty: v.warranty ?? '',
-        installedAt: v.installedAt ?? today(),
+        installedAt: v.installedAt ?? new Date().toLocaleDateString('vi-VN'),
         note: v.note ?? ''
       })
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['network-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to create network device:', error)
       throw error
@@ -84,8 +74,7 @@ export function NetworkManagementPage() {
   const handleEdit = async (id: string, v: any) => {
     try {
       await updateNetworkDevice(id, v)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['network-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to update network device:', error)
       throw error
@@ -95,8 +84,7 @@ export function NetworkManagementPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteNetworkDevice(id)
-      setLocalItems(null)
-      queryClient.invalidateQueries({ queryKey: ['network-module'] })
+      refetch()
     } catch (error) {
       console.error('Failed to delete network device:', error)
       throw error

@@ -6,12 +6,12 @@ import type { KPIItem } from '../../types/dashboard'
 
 const toneOrder = ['primary', 'emerald', 'amber', 'zinc'] as const
 
-const toneMap = {
+const toneMap: Record<string, string> = {
   primary: 'border-blue-500/20 bg-blue-500/10 text-blue-100',
   emerald: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-100',
   amber: 'border-amber-500/20 bg-amber-500/10 text-amber-100',
   zinc: 'border-zinc-500/20 bg-zinc-500/10 text-zinc-100'
-} as const
+}
 
 type Props = {
   items: KPIItem[]

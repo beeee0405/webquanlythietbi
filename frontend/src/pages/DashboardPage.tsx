@@ -5,19 +5,6 @@ import { DataTable } from '../components/dashboard/DataTable'
 import { KpiGrid } from '../components/dashboard/KpiGrid'
 import { QuickTicketDialog } from '../components/dashboard/QuickTicketDialog'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-import {
-  alertSummaryData,
-  assetLifecycleData,
-  deviceStatusData,
-  deviceTypeData,
-  kpiItems,
-  maintenanceTrendData,
-  recentDevices,
-  recentTickets,
-  roomWorkloadData,
-  ticketPriorityData,
-  ticketMonthlyData
-} from '../data/dashboard'
 import { getDashboardData } from '../services/dashboardService'
 
 function useDashboardData() {
@@ -49,21 +36,21 @@ export function DashboardPage() {
         </div>
       </motion.section>
 
-      <KpiGrid items={data?.kpis ?? kpiItems} />
+      <KpiGrid items={data?.kpis ?? []} />
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <ChartCard title="Thiết bị theo loại" kind="pie" data={data?.deviceTypes ?? deviceTypeData} />
-        <ChartCard title="Thiết bị theo trạng thái" kind="bar" data={data?.deviceStatuses ?? deviceStatusData} />
+        <ChartCard title="Thiết bị theo loại" kind="pie" data={data?.deviceTypes ?? []} />
+        <ChartCard title="Thiết bị theo trạng thái" kind="bar" data={data?.deviceStatuses ?? []} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <ChartCard title="Ticket theo tháng" kind="line" data={data?.ticketMonthly ?? ticketMonthlyData} />
-        <ChartCard title="Chi phí bảo trì" kind="area" data={data?.maintenanceCosts ?? maintenanceTrendData} colors={['#10b981']} />
+        <ChartCard title="Ticket theo tháng" kind="line" data={data?.ticketMonthly ?? []} />
+        <ChartCard title="Chi phí bảo trì" kind="area" data={data?.maintenanceCosts ?? []} colors={['#10b981']} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <ChartCard title="Ticket theo mức ưu tiên" kind="pie" data={data?.ticketPriority ?? ticketPriorityData} colors={['#ef4444', '#f59e0b', '#3b82f6', '#64748b']} />
-        <ChartCard title="Khối lượng theo phòng" kind="bar" data={data?.roomWorkload ?? roomWorkloadData} colors={['#8b5cf6']} />
+        <ChartCard title="Ticket theo mức ưu tiên" kind="pie" data={data?.ticketPriority ?? []} colors={['#ef4444', '#f59e0b', '#3b82f6', '#64748b']} />
+        <ChartCard title="Khối lượng theo phòng" kind="bar" data={data?.roomWorkload ?? []} colors={['#8b5cf6']} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2 2xl:grid-cols-4">
@@ -72,19 +59,7 @@ export function DashboardPage() {
             <CardTitle>Thiết bị sắp hết bảo hành</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {(data?.warrantyExpiring && data.warrantyExpiring.length > 0) ? (
-              data.warrantyExpiring.slice(0, 4).map((device: any) => (
-                <div key={device.id || device.name} className="flex items-center justify-between rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
-                  <div>
-                    <div className="font-medium text-white">{device.name}</div>
-                    <div className="text-sm text-slate-400">{device.room} · {device.warranty}</div>
-                  </div>
-                  <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs text-amber-200">{device.daysLeft} ngày</span>
-                </div>
-              ))
-            ) : (
-              <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-sm text-slate-500">Chưa có dữ liệu</div>
-            )}
+            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-sm text-slate-500">Chưa có dữ liệu</div>
           </CardContent>
         </Card>
 
@@ -116,13 +91,7 @@ export function DashboardPage() {
             <CardTitle>Hoạt động gần đây</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-300">
-            {(data?.recentActivities && data.recentActivities.length > 0) ? (
-              data.recentActivities.slice(0, 4).map((activity: any, index: number) => (
-                <div key={index} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">{activity.message}</div>
-              ))
-            ) : (
-              <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-slate-500">Chưa có dữ liệu</div>
-            )}
+            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-slate-500">Chưa có dữ liệu</div>
           </CardContent>
         </Card>
 
@@ -131,13 +100,7 @@ export function DashboardPage() {
             <CardTitle>Lịch bảo trì</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-300">
-            {(data?.maintenanceSchedule && data.maintenanceSchedule.length > 0) ? (
-              data.maintenanceSchedule.slice(0, 4).map((item: any, index: number) => (
-                <div key={index} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">{item.date} - {item.description}</div>
-              ))
-            ) : (
-              <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-slate-500">Chưa có dữ liệu</div>
-            )}
+            <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-slate-500">Chưa có dữ liệu</div>
           </CardContent>
         </Card>
 
@@ -146,7 +109,7 @@ export function DashboardPage() {
             <CardTitle>Vòng đời tài sản</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-300">
-            {(data?.assetLifecycle ?? assetLifecycleData).map(item => (
+            {(data?.assetLifecycle ?? []).map(item => (
               <div key={item.name} className="flex items-center justify-between rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
                 <span>{item.name}</span>
                 <span className="font-semibold text-white">{item.value}</span>
@@ -160,7 +123,7 @@ export function DashboardPage() {
             <CardTitle>Chỉ số cảnh báo nhanh</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-300">
-            {(data?.alerts ?? alertSummaryData).map(item => (
+            {(data?.alerts ?? []).map(item => (
               <div key={item.label} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
                 <div className="text-slate-400">{item.label}</div>
                 <div className="mt-1 text-2xl font-bold text-white">{item.value}</div>
@@ -171,8 +134,8 @@ export function DashboardPage() {
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-2">
-        <DataTable title="10 thiết bị mới nhất" items={(data?.devices ?? recentDevices).slice(0, 10)} mode="devices" />
-        <DataTable title="10 ticket mới nhất" items={(data?.tickets ?? recentTickets).slice(0, 10)} mode="tickets" />
+        <DataTable title="10 thiết bị mới nhất" items={(data?.devices ?? []).slice(0, 10)} mode="devices" />
+        <DataTable title="10 ticket mới nhất" items={(data?.tickets ?? []).slice(0, 10)} mode="tickets" />
       </section>
     </div>
   )
