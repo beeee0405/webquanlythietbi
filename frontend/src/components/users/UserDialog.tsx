@@ -47,7 +47,7 @@ export function UserDialog({ mode, open, onOpenChange, item: user, onAdd, onEdit
     if (mode === 'add') {
       reset({ fullName: '', email: '', phone: '', department: '', room: '', role: 'Nhân viên', status: 'Đang hoạt động', username: '', password: '' })
     } else if (user) {
-      reset({ fullName: user.fullName, email: user.email, phone: user.phone, department: user.department, room: user.room, role: user.role, status: user.status, username: '', password: '' })
+      reset({ fullName: user.fullName, email: user.email, phone: user.phone, department: user.department, room: user.room, role: user.role, status: user.status, username: undefined, password: undefined })
     }
   }, [open, mode, user, reset])
 
