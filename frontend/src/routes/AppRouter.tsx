@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { AppShell } from '../components/layouts/AppShell'
 import { ProtectedRoute } from '../components/ProtectedRoute'
 import { LoginPage } from '../pages/LoginPage'
+import { RegisterPage } from '../pages/RegisterPage'
 import { DashboardPage } from '../pages/DashboardPage'
 import { UserPortalDashboard } from '../pages/UserPortalDashboard'
 import { DeviceManagementPage } from '../pages/DeviceManagementPage'
@@ -79,15 +80,21 @@ function EndUserRoutes() {
 export function AppRouter() {
   const { user } = useAuth()
 
-  // Nếu đã đăng nhập và vào /login → redirect về trang chủ
+  // Nếu đã đăng nhập và vào /login hoặc /register → redirect về trang chủ
   const LoginGuard = () => {
     if (user) return <Navigate to="/" replace />
     return <LoginPage />
   }
 
+  const RegisterGuard = () => {
+    if (user) return <Navigate to="/" replace />
+    return <RegisterPage />
+  }
+
   return (
     <Routes>
       <Route path="/login" element={<LoginGuard />} />
+      <Route path="/register" element={<RegisterGuard />} />
       
       {/* Role-based routing */}
       {user?.role === 'Quản trị viên' ? (

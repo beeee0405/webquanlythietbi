@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Link } from 'react-router-dom'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
@@ -65,6 +66,15 @@ export function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </Button>
+            <div className="text-center text-sm text-slate-400">
+              Chưa có tài khoản?{' '}
+              <Link
+                to="/register"
+                className="text-blue-400 hover:text-blue-300 font-medium"
+              >
+                Đăng ký ngay
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>
