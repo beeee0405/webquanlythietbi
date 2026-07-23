@@ -1,10 +1,12 @@
-﻿namespace backend.Data.Entities;
+namespace backend.Data.Entities;
 
 public class MaintenanceItem
 {
     public int Id { get; set; }
     public string Code { get; set; } = "";
     public string Title { get; set; } = "";
+    public string AssetCode { get; set; } = "";
+    public string AssetName { get; set; } = "";
     public int? DeviceId { get; set; }
     public int? RoomId { get; set; }
     public string Type { get; set; } = "";

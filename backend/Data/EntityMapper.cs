@@ -1,4 +1,4 @@
-﻿using backend.Data.Entities;
+using backend.Data.Entities;
 
 namespace backend.Data;
 
@@ -17,7 +17,7 @@ public static class EntityMapper {
         t.AssigneeId.ToString(), t.Sla, t.CreatedAt, t.UpdatedAt);
 
     public static MaintenanceDto ToDto(MaintenanceItem m) => new(
-        m.Id.ToString(), m.Code, m.Title, "", "",
+        m.Id.ToString(), m.Code, m.Title, m.AssetCode, m.AssetName,
         m.RoomId.ToString(), m.Type, m.Priority, m.Status, m.AssigneeId.ToString(),
         m.ScheduledAt, m.CompletedAt, m.Cost, m.Note);
 
@@ -42,12 +42,12 @@ public static class EntityMapper {
         i.StartedAt, i.CompletedAt, i.Note);
 
     public static TransferDto ToDto(Transfer t) => new(
-        t.Id.ToString(), t.Code, "", "",
+        t.Id.ToString(), t.Code, t.AssetCode, t.AssetName,
         t.FromRoomId.ToString(), t.ToRoomId.ToString(), t.RequesterId.ToString(), t.ApproverId.ToString(),
         t.Status, t.TransferredAt, t.ApprovedAt, t.Note);
 
     public static LiquidationDto ToDto(Liquidation l) => new(
-        l.Id.ToString(), l.Code, "", "",
+        l.Id.ToString(), l.Code, l.AssetCode, l.AssetName,
         l.RoomId.ToString(), l.Reason, l.Condition, l.Status, l.RequesterId.ToString(),
         l.ApproverId.ToString(), l.ResidualValue.ToString("N0"),
         l.RequestedAt, l.CompletedAt, l.Note);
@@ -55,7 +55,7 @@ public static class EntityMapper {
     public static SoftwareDto ToDto(Software s) => new(
         s.Id.ToString(), s.Name, s.Publisher, s.Version, s.Category,
         s.LicenseType, s.LicenseKey, s.TotalLicenses.ToString(),
-        s.UsedLicenses.ToString(), s.ExpiresAt, "", s.Status, s.Note);
+        s.UsedLicenses.ToString(), s.ExpiresAt, s.RoomId.ToString(), s.Status, s.Note);
 
     public static AppUserDto ToDto(AppUser u) => new(
         u.Id.ToString(), u.FullName, u.Email, u.Phone,
@@ -85,7 +85,7 @@ public static class EntityMapper {
 
     public static MaintenanceItem ToEntity(MaintenanceDto m) => new()
     {
-        Code = m.Code ?? "", Title = m.Title ?? "", DeviceId = 0,
+        Code = m.Code ?? "", Title = m.Title ?? "", AssetCode = m.AssetCode ?? "", AssetName = m.AssetName ?? "", DeviceId = null,
         RoomId = ParseId(m.Room), Type = m.Type ?? "",
         Priority = m.Priority ?? "", Status = m.Status ?? "", AssigneeId = ParseId(m.Assignee),
         ScheduledAt = m.ScheduledAt ?? "", CompletedAt = m.CompletedAt ?? "",
@@ -131,7 +131,7 @@ public static class EntityMapper {
 
     public static Transfer ToEntity(TransferDto t) => new()
     {
-        Code = t.Code ?? "", DeviceId = 0,
+        Code = t.Code ?? "", AssetCode = t.AssetCode ?? "", AssetName = t.AssetName ?? "", DeviceId = null,
         FromRoomId = ParseId(t.FromRoom),
         ToRoomId = ParseId(t.ToRoom),
         RequesterId = ParseId(t.Requester),
@@ -142,7 +142,7 @@ public static class EntityMapper {
 
     public static Liquidation ToEntity(LiquidationDto l) => new()
     {
-        Code = l.Code ?? "", DeviceId = 0,
+        Code = l.Code ?? "", AssetCode = l.AssetCode ?? "", AssetName = l.AssetName ?? "", DeviceId = null,
         RoomId = ParseId(l.Room), Reason = l.Reason ?? "", Condition = l.Condition ?? "",
         Status = l.Status ?? "", RequesterId = ParseId(l.Requester),
         ApproverId = ParseId(l.Approver),
@@ -157,7 +157,7 @@ public static class EntityMapper {
         LicenseKey = s.LicenseKey ?? "",
         TotalLicenses = int.TryParse(s.TotalLicenses, out var tl) ? tl : 0,
         UsedLicenses = int.TryParse(s.UsedLicenses, out var ul) ? ul : 0,
-        ExpiresAt = s.ExpiresAt ?? "", Status = s.Status ?? "", Note = s.Note ?? ""
+        ExpiresAt = s.ExpiresAt ?? "", RoomId = ParseId(s.Room), Status = s.Status ?? "", Note = s.Note ?? ""
     };
 
     public static AppUser ToEntity(AppUserDto u) => new()

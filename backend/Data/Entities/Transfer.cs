@@ -1,9 +1,11 @@
-﻿namespace backend.Data.Entities;
+namespace backend.Data.Entities;
 
 public class Transfer
 {
     public int Id { get; set; }
     public string Code { get; set; } = "";
+    public string AssetCode { get; set; } = "";
+    public string AssetName { get; set; } = "";
     public int? DeviceId { get; set; }
     public int? FromRoomId { get; set; }
     public int? ToRoomId { get; set; }
