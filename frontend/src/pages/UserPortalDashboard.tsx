@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Badge } from '../components/ui/badge'
 import { useAuth } from '../contexts/AuthContext'
-import { getTicketData } from '../services/ticketService'
+import { getTicketData, createTicket } from '../services/ticketService'
 import { TicketDialog } from '../components/tickets/TicketDialog'
 import type { TicketItem, TicketStatus } from '../types/ticket'
 
@@ -33,7 +33,7 @@ export function UserPortalDashboard() {
   const [dialogMode, setDialogMode] = useState<'add' | 'view'>('add')
   const [selectedTicket, setSelectedTicket] = useState<TicketItem | undefined>()
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ['user-tickets', user?.id],
     queryFn: async () => {
       const response = await getTicketData()
@@ -71,9 +71,14 @@ export function UserPortalDashboard() {
     setDialogOpen(true)
   }
 
-  const handleAdd = () => {
-    // Will be handled by actual API call in TicketDialog
-    setDialogOpen(false)
+  const handleAdd = async (v: any) => {
+    try {
+      await createTicket(v)
+      refetch()
+      setDialogOpen(false)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   return (

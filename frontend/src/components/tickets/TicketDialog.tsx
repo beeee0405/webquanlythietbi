@@ -171,36 +171,40 @@ export function TicketDialog({ mode, open, onOpenChange, item, onAdd, onEdit, on
                 {errors.category && <p className="text-xs text-red-400">{errors.category.message}</p>}
               </div>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className={`grid gap-4 ${isUserPortal ? '' : 'md:grid-cols-2'}`}>
               <div className="grid gap-2">
                 <Label>Ưu tiên</Label>
                 <Select {...register('priority')}>
                   {PRIORITIES.map(p => <option key={p}>{p}</option>)}
                 </Select>
               </div>
-              <div className="grid gap-2">
-                <Label>Trạng thái</Label>
-                <Select {...register('status')}>
-                  {STATUSES.map(s => <option key={s}>{s}</option>)}
-                </Select>
-              </div>
+              {!isUserPortal && (
+                <div className="grid gap-2">
+                  <Label>Trạng thái</Label>
+                  <Select {...register('status')}>
+                    {STATUSES.map(s => <option key={s}>{s}</option>)}
+                  </Select>
+                </div>
+              )}
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="grid gap-2">
-                <Label>Kênh tiếp nhận</Label>
-                <Select {...register('channel')}>
-                  {CHANNELS.map(c => <option key={c}>{c}</option>)}
-                </Select>
+            {!isUserPortal && (
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-2">
+                  <Label>Kênh tiếp nhận</Label>
+                  <Select {...register('channel')}>
+                    {CHANNELS.map(c => <option key={c}>{c}</option>)}
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Phân công</Label>
+                  <Input placeholder="Kỹ thuật viên A" {...register('assignee')} />
+                </div>
+                <div className="grid gap-2">
+                  <Label>SLA</Label>
+                  <Input placeholder="4h, 8h, 24h..." {...register('sla')} />
+                </div>
               </div>
-              <div className="grid gap-2">
-                <Label>Phân công</Label>
-                <Input placeholder="Kỹ thuật viên A" {...register('assignee')} />
-              </div>
-              <div className="grid gap-2">
-                <Label>SLA</Label>
-                <Input placeholder="4h, 8h, 24h..." {...register('sla')} />
-              </div>
-            </div>
+            )}
             <div className="grid gap-2">
               <Label>Mô tả chi tiết</Label>
               <Textarea placeholder="Mô tả chi tiết vấn đề, bước tái hiện lỗi..." {...register('note')} />
