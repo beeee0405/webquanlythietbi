@@ -109,6 +109,18 @@ try
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
+    try
+    {
+        await db.Database.ExecuteSqlRawAsync("SELECT 1 FROM \"AppIdentityUsers\" LIMIT 1");
+        var isNpgsql = db.Database.IsNpgsql();
+        var table = isNpgsql ? "\"__EFMigrationsHistory\"" : "__EFMigrationsHistory";
+        await db.Database.ExecuteSqlRawAsync($"CREATE TABLE IF NOT EXISTS {table} (\"MigrationId\" TEXT NOT NULL PRIMARY KEY, \"ProductVersion\" TEXT NOT NULL)");
+        try {
+            await db.Database.ExecuteSqlRawAsync($"INSERT INTO {table} (\"MigrationId\", \"ProductVersion\") VALUES ('20260723053250_InitPostgres', '8.0.2')");
+        } catch { }
+    }
+    catch { }
+
     // Apply migrations (works for both SQLite and PostgreSQL)
     await db.Database.MigrateAsync();
     await DbSeeder.SeedAsync(db);
