@@ -72,7 +72,6 @@ public class TicketsController : ControllerBase
         ticket.Subject = dto.Subject ?? ticket.Subject;
         ticket.Status = dto.Status ?? ticket.Status;
         ticket.Priority = dto.Priority ?? ticket.Priority;
-        ticket.Assignee = dto.Assignee ?? ticket.Assignee;
         ticket.UpdatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 
         await _db.SaveChangesAsync();

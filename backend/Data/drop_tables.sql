@@ -1,0 +1,14 @@
+-- Drop all tables in correct order (reverse of foreign key dependencies)
+DROP TABLE IF EXISTS "Tickets" CASCADE;
+DROP TABLE IF EXISTS "Transfers" CASCADE;
+DROP TABLE IF EXISTS "Liquidations" CASCADE;
+DROP TABLE IF EXISTS "MaintenanceItems" CASCADE;
+DROP TABLE IF EXISTS "InventorySessions" CASCADE;
+DROP TABLE IF EXISTS "Cameras" CASCADE;
+DROP TABLE IF EXISTS "NetworkDevices" CASCADE;
+DROP TABLE IF EXISTS "Softwares" CASCADE;
+DROP TABLE IF EXISTS "Devices" CASCADE;
+DROP TABLE IF EXISTS "Rooms" CASCADE;
+DROP TABLE IF EXISTS "AppUsers" CASCADE;
+DROP TABLE IF EXISTS "AppIdentityUsers" CASCADE;
+DROP TABLE IF EXISTS "__EFMigrationsHistory" CASCADE;

@@ -12,7 +12,10 @@ public class Software
     public int TotalLicenses { get; set; }
     public int UsedLicenses { get; set; }
     public string ExpiresAt { get; set; } = "";
-    public string Room { get; set; } = "";
+    public int? RoomId { get; set; }
     public string Status { get; set; } = ""; // Đang dùng, Hết hạn, Sắp hết hạn
     public string Note { get; set; } = "";
+
+    // Navigation properties
+    public Room? Room { get; set; }
 }

@@ -29,8 +29,8 @@ public class TransferController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<TransferDto>> Create([FromBody] TransferDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code) || string.IsNullOrEmpty(dto.AssetCode))
-            return BadRequest("Mã điều chuyển và mã asset không được để trống");
+        if (string.IsNullOrEmpty(dto.Code))
+            return BadRequest("Mã điều chuyển không được để trống");
 
         var transfer = EntityMapper.ToEntity(dto);
         _db.Transfers.Add(transfer);
@@ -48,11 +48,6 @@ public class TransferController : ControllerBase
             return NotFound();
 
         transfer.Code = dto.Code ?? transfer.Code;
-        transfer.AssetCode = dto.AssetCode ?? transfer.AssetCode;
-        transfer.AssetName = dto.AssetName ?? transfer.AssetName;
-        transfer.FromRoom = dto.FromRoom ?? transfer.FromRoom;
-        transfer.ToRoom = dto.ToRoom ?? transfer.ToRoom;
-        transfer.Requester = dto.Requester ?? transfer.Requester;
         transfer.Status = dto.Status ?? transfer.Status;
         transfer.TransferredAt = dto.TransferredAt ?? transfer.TransferredAt;
         transfer.Note = dto.Note ?? transfer.Note;

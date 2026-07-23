@@ -51,7 +51,6 @@ public class MaintenanceController : ControllerBase
         item.Status = dto.Status ?? item.Status;
         item.Type = dto.Type ?? item.Type;
         item.Priority = dto.Priority ?? item.Priority;
-        item.Assignee = dto.Assignee ?? item.Assignee;
         item.CompletedAt = dto.CompletedAt ?? item.CompletedAt;
         item.Note = dto.Note ?? item.Note;
 

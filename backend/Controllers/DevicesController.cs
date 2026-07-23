@@ -58,8 +58,6 @@ public class DevicesController : ControllerBase
         device.Name = dto.Name ?? device.Name;
         device.Category = dto.Category ?? device.Category;
         device.Brand = dto.Brand ?? device.Brand;
-        device.Room = dto.Room ?? device.Room;
-        device.Owner = dto.Owner ?? device.Owner;
         device.Status = dto.Status ?? device.Status;
         device.UpdatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 

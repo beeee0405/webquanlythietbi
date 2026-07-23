@@ -52,7 +52,6 @@ public class NetworkController : ControllerBase
         device.Type = dto.Type ?? device.Type;
         device.Brand = dto.Brand ?? device.Brand;
         device.Model = dto.Model ?? device.Model;
-        device.Room = dto.Room ?? device.Room;
         device.IpAddress = dto.IpAddress ?? device.IpAddress;
         device.MacAddress = dto.MacAddress ?? device.MacAddress;
         device.Vlan = dto.Vlan ?? device.Vlan;

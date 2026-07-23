@@ -49,7 +49,6 @@ public class CamerasController : ControllerBase
 
         camera.Code = dto.Code ?? camera.Code;
         camera.Name = dto.Name ?? camera.Name;
-        camera.Room = dto.Room ?? camera.Room;
         camera.IpAddress = dto.IpAddress ?? camera.IpAddress;
         camera.Brand = dto.Brand ?? camera.Brand;
         camera.Model = dto.Model ?? camera.Model;

@@ -29,8 +29,8 @@ public class LiquidationController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<LiquidationDto>> Create([FromBody] LiquidationDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code) || string.IsNullOrEmpty(dto.AssetCode))
-            return BadRequest("Mã yêu cầu và mã asset không được để trống");
+        if (string.IsNullOrEmpty(dto.Code))
+            return BadRequest("Mã yêu cầu không được để trống");
 
         var item = EntityMapper.ToEntity(dto);
         _db.Liquidations.Add(item);
@@ -48,13 +48,9 @@ public class LiquidationController : ControllerBase
             return NotFound();
 
         item.Code = dto.Code ?? item.Code;
-        item.AssetCode = dto.AssetCode ?? item.AssetCode;
-        item.AssetName = dto.AssetName ?? item.AssetName;
-        item.Room = dto.Room ?? item.Room;
         item.Reason = dto.Reason ?? item.Reason;
         item.Condition = dto.Condition ?? item.Condition;
         item.Status = dto.Status ?? item.Status;
-        item.Requester = dto.Requester ?? item.Requester;
         item.CompletedAt = dto.CompletedAt ?? item.CompletedAt;
         item.Note = dto.Note ?? item.Note;
 

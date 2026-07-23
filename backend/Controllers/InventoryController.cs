@@ -29,8 +29,8 @@ public class InventoryController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<InventorySessionDto>> Create([FromBody] InventorySessionDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code) || string.IsNullOrEmpty(dto.Room))
-            return BadRequest("Mã đợt và phòng không được để trống");
+        if (string.IsNullOrEmpty(dto.Code))
+            return BadRequest("Mã đợt không được để trống");
 
         var session = EntityMapper.ToEntity(dto);
         _db.InventorySessions.Add(session);
@@ -48,8 +48,6 @@ public class InventoryController : ControllerBase
             return NotFound();
 
         session.Code = dto.Code ?? session.Code;
-        session.Room = dto.Room ?? session.Room;
-        session.Inspector = dto.Inspector ?? session.Inspector;
         session.Status = dto.Status ?? session.Status;
         if (int.TryParse(dto.TotalDevices, out var t)) session.TotalDevices = t;
         if (int.TryParse(dto.CheckedDevices, out var c)) session.CheckedDevices = c;

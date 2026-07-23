@@ -8,7 +8,7 @@ public class NetworkDevice
     public string Type { get; set; } = ""; // Switch, Router, Access Point, Firewall
     public string Brand { get; set; } = "";
     public string Model { get; set; } = "";
-    public string Room { get; set; } = "";
+    public int RoomId { get; set; }
     public string IpAddress { get; set; } = "";
     public string MacAddress { get; set; } = "";
     public string Vlan { get; set; } = "";
@@ -17,4 +17,7 @@ public class NetworkDevice
     public string Warranty { get; set; } = "";
     public string InstalledAt { get; set; } = "";
     public string Note { get; set; } = "";
+
+    // Navigation properties
+    public Room? Room { get; set; }
 }
