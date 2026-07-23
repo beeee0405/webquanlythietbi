@@ -53,10 +53,7 @@ export function RoomDialog({ mode, open, onOpenChange, room, onAdd, onEdit, onDe
   }, [open, mode, room, reset])
 
   const onSubmit = async (v: FormValues) => {
-    await new Promise(r => setTimeout(r, 400))
-    if (mode === 'add') { onAdd?.(v); toast.success(`Đã thêm phòng "${v.name}"`) }
-    else { onEdit?.(room!.id, v); toast.success(`Đã cập nhật phòng "${v.name}"`) }
-    onOpenChange(false)
+    try { if (mode === 'add') { await onAdd?.(v); toast.success('Đã thêm thành công'); } else { await onEdit?.(item?.id || v.id, v); toast.success('Đã cập nhật thành công'); } onOpenChange(false); } catch (e) { toast.error('Có lỗi xảy ra'); }
   }
 
   const handleDelete = async () => {

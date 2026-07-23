@@ -1,10 +1,10 @@
-using backend.Data.Entities;
+﻿using backend.Data.Entities;
 
 namespace backend.Data;
 
-public static class EntityMapper
-{
-    // ── ToDto ──────────────────────────────────────────────────
+public static class EntityMapper {
+    private static int? ParseId(string? input) => int.TryParse(input, out var id) ? id : null;
+    // â”€â”€ ToDto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public static DeviceDto ToDto(Device d) => new(
         d.Id.ToString(), d.AssetCode, d.Name, d.Category, d.Brand,
@@ -62,32 +62,32 @@ public static class EntityMapper
         u.Department, "", u.Role, u.Status,
         u.CreatedAt, u.LastLogin);
 
-    // ── ToEntity ───────────────────────────────────────────────
+    // â”€â”€ ToEntity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public static Device ToEntity(DeviceDto d) => new()
     {
         AssetCode = d.AssetCode ?? "", Name = d.Name ?? "", Category = d.Category ?? "",
-        Brand = d.Brand ?? "", RoomId = int.TryParse(d.Room, out var r) ? r : 0,
-        OwnerId = int.TryParse(d.Owner, out var o) ? o : 0,
+        Brand = d.Brand ?? "", RoomId = ParseId(d.Room),
+        OwnerId = ParseId(d.Owner),
         Status = d.Status ?? "", Warranty = d.Warranty ?? "", Serial = d.Serial ?? "",
         PurchaseDate = d.PurchaseDate ?? "", UpdatedAt = d.UpdatedAt ?? ""
     };
 
     public static Ticket ToEntity(TicketDto t) => new()
     {
-        Code = t.Code ?? "", Subject = t.Subject ?? "", RequesterId = int.TryParse(t.Requester, out var req) ? req : 0,
-        RoomId = int.TryParse(t.Room, out var rm) ? rm : 0, DeviceId = int.TryParse(t.Device, out var dev) ? dev : 0,
+        Code = t.Code ?? "", Subject = t.Subject ?? "", RequesterId = ParseId(t.Requester),
+        RoomId = ParseId(t.Room), DeviceId = ParseId(t.Device),
         Category = t.Category ?? "",
         Priority = t.Priority ?? "", Status = t.Status ?? "", Channel = t.Channel ?? "",
-        AssigneeId = int.TryParse(t.Assignee, out var a) ? a : 0, Sla = t.Sla ?? "",
+        AssigneeId = ParseId(t.Assignee), Sla = t.Sla ?? "",
         CreatedAt = t.CreatedAt ?? "", UpdatedAt = t.UpdatedAt ?? ""
     };
 
     public static MaintenanceItem ToEntity(MaintenanceDto m) => new()
     {
         Code = m.Code ?? "", Title = m.Title ?? "", DeviceId = 0,
-        RoomId = int.TryParse(m.Room, out var r) ? r : 0, Type = m.Type ?? "",
-        Priority = m.Priority ?? "", Status = m.Status ?? "", AssigneeId = int.TryParse(m.Assignee, out var a) ? a : 0,
+        RoomId = ParseId(m.Room), Type = m.Type ?? "",
+        Priority = m.Priority ?? "", Status = m.Status ?? "", AssigneeId = ParseId(m.Assignee),
         ScheduledAt = m.ScheduledAt ?? "", CompletedAt = m.CompletedAt ?? "",
         Cost = m.Cost ?? "", Note = m.Note ?? ""
     };
@@ -102,7 +102,7 @@ public static class EntityMapper
 
     public static Camera ToEntity(CameraDto c) => new()
     {
-        Code = c.Code ?? "", Name = c.Name ?? "", RoomId = int.TryParse(c.Room, out var r) ? r : 0,
+        Code = c.Code ?? "", Name = c.Name ?? "", RoomId = ParseId(c.Room),
         IpAddress = c.IpAddress ?? "", Brand = c.Brand ?? "", Model = c.Model ?? "",
         Resolution = c.Resolution ?? "", Status = c.Status ?? "",
         InstalledAt = c.InstalledAt ?? "", Warranty = c.Warranty ?? "", Note = c.Note ?? ""
@@ -111,7 +111,7 @@ public static class EntityMapper
     public static NetworkDevice ToEntity(NetworkDeviceDto n) => new()
     {
         Code = n.Code ?? "", Name = n.Name ?? "", Type = n.Type ?? "", Brand = n.Brand ?? "",
-        Model = n.Model ?? "", RoomId = int.TryParse(n.Room, out var r) ? r : 0, IpAddress = n.IpAddress ?? "",
+        Model = n.Model ?? "", RoomId = ParseId(n.Room), IpAddress = n.IpAddress ?? "",
         MacAddress = n.MacAddress ?? "", Vlan = n.Vlan ?? "", Port = n.Port ?? "",
         Status = n.Status ?? "", Warranty = n.Warranty ?? "",
         InstalledAt = n.InstalledAt ?? "", Note = n.Note ?? ""
@@ -119,8 +119,8 @@ public static class EntityMapper
 
     public static InventorySession ToEntity(InventorySessionDto i) => new()
     {
-        Code = i.Code ?? "", RoomId = int.TryParse(i.Room, out var r) ? r : 0,
-        InspectorId = int.TryParse(i.Inspector, out var insp) ? insp : 0,
+        Code = i.Code ?? "", RoomId = ParseId(i.Room),
+        InspectorId = ParseId(i.Inspector),
         Status = i.Status ?? "",
         TotalDevices = int.TryParse(i.TotalDevices, out var t) ? t : 0,
         CheckedDevices = int.TryParse(i.CheckedDevices, out var c) ? c : 0,
@@ -132,10 +132,10 @@ public static class EntityMapper
     public static Transfer ToEntity(TransferDto t) => new()
     {
         Code = t.Code ?? "", DeviceId = 0,
-        FromRoomId = int.TryParse(t.FromRoom, out var fr) ? fr : 0,
-        ToRoomId = int.TryParse(t.ToRoom, out var tr) ? tr : 0,
-        RequesterId = int.TryParse(t.Requester, out var req) ? req : 0,
-        ApproverId = int.TryParse(t.Approver, out var app) ? app : 0,
+        FromRoomId = ParseId(t.FromRoom),
+        ToRoomId = ParseId(t.ToRoom),
+        RequesterId = ParseId(t.Requester),
+        ApproverId = ParseId(t.Approver),
         Status = t.Status ?? "", TransferredAt = t.TransferredAt ?? "",
         ApprovedAt = t.ApprovedAt ?? "", Note = t.Note ?? ""
     };
@@ -143,9 +143,9 @@ public static class EntityMapper
     public static Liquidation ToEntity(LiquidationDto l) => new()
     {
         Code = l.Code ?? "", DeviceId = 0,
-        RoomId = int.TryParse(l.Room, out var r) ? r : 0, Reason = l.Reason ?? "", Condition = l.Condition ?? "",
-        Status = l.Status ?? "", RequesterId = int.TryParse(l.Requester, out var req) ? req : 0,
-        ApproverId = int.TryParse(l.Approver, out var app) ? app : 0,
+        RoomId = ParseId(l.Room), Reason = l.Reason ?? "", Condition = l.Condition ?? "",
+        Status = l.Status ?? "", RequesterId = ParseId(l.Requester),
+        ApproverId = ParseId(l.Approver),
         ResidualValue = decimal.TryParse((l.ResidualValue ?? "0").Replace(",", ""), out var v) ? v : 0,
         RequestedAt = l.RequestedAt ?? "", CompletedAt = l.CompletedAt ?? "", Note = l.Note ?? ""
     };
@@ -167,4 +167,6 @@ public static class EntityMapper
         Status = u.Status ?? "", CreatedAt = u.CreatedAt ?? "", LastLogin = u.LastLogin ?? ""
     };
 }
+
+
 

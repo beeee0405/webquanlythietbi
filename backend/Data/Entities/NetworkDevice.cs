@@ -1,4 +1,4 @@
-namespace backend.Data.Entities;
+﻿namespace backend.Data.Entities;
 
 public class NetworkDevice
 {
@@ -8,7 +8,7 @@ public class NetworkDevice
     public string Type { get; set; } = ""; // Switch, Router, Access Point, Firewall
     public string Brand { get; set; } = "";
     public string Model { get; set; } = "";
-    public int RoomId { get; set; }
+    public int? RoomId { get; set; }
     public string IpAddress { get; set; } = "";
     public string MacAddress { get; set; } = "";
     public string Vlan { get; set; } = "";
@@ -21,3 +21,4 @@ public class NetworkDevice
     // Navigation properties
     public Room? Room { get; set; }
 }
+

@@ -1,4 +1,4 @@
-namespace backend.Data.Entities;
+﻿namespace backend.Data.Entities;
 
 public class Room
 {
@@ -13,3 +13,4 @@ public class Room
     public string Manager { get; set; } = "";
     public string Note { get; set; } = "";
 }
+

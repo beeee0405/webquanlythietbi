@@ -55,10 +55,7 @@ export function CameraDialog({ mode, open, onOpenChange, camera, onAdd, onEdit, 
   }, [open, mode, camera, reset])
 
   const onSubmit = async (v: FormValues) => {
-    await new Promise(r => setTimeout(r, 400))
-    if (mode === 'add') { onAdd?.(v); toast.success(`Đã thêm camera "${v.name}"`) }
-    else { onEdit?.(camera!.id, v); toast.success(`Đã cập nhật camera "${v.name}"`) }
-    onOpenChange(false)
+    try { if (mode === 'add') { await onAdd?.(v); toast.success('Đã thêm thành công'); } else { await onEdit?.(item?.id || v.id, v); toast.success('Đã cập nhật thành công'); } onOpenChange(false); } catch (e) { toast.error('Có lỗi xảy ra'); }
   }
 
   const handleDelete = async () => {

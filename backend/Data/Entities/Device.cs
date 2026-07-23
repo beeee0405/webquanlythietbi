@@ -1,4 +1,4 @@
-namespace backend.Data.Entities;
+﻿namespace backend.Data.Entities;
 
 public class Device
 {
@@ -7,8 +7,8 @@ public class Device
     public string Name { get; set; } = "";
     public string Category { get; set; } = "";
     public string Brand { get; set; } = "";
-    public int RoomId { get; set; }
-    public int OwnerId { get; set; }
+    public int? RoomId { get; set; }
+    public int? OwnerId { get; set; }
     public string Status { get; set; } = "";
     public string Warranty { get; set; } = "";
     public string Serial { get; set; } = "";
@@ -19,3 +19,4 @@ public class Device
     public Room? Room { get; set; }
     public AppUser? Owner { get; set; }
 }
+

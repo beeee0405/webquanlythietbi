@@ -56,10 +56,7 @@ export function MaintenanceDialog({ mode, open, onOpenChange, item, onAdd, onEdi
   }, [open, mode, item, reset])
 
   const onSubmit = async (v: FormValues) => {
-    await new Promise(r => setTimeout(r, 400))
-    if (mode === 'add') { onAdd?.(v); toast.success(`Đã tạo phiếu bảo trì "${v.title}"`) }
-    else { onEdit?.(item!.id, v); toast.success(`Đã cập nhật phiếu "${v.title}"`) }
-    onOpenChange(false)
+    try { if (mode === 'add') { await onAdd?.(v); toast.success('Đã thêm thành công'); } else { await onEdit?.(item?.id || v.id, v); toast.success('Đã cập nhật thành công'); } onOpenChange(false); } catch (e) { toast.error('Có lỗi xảy ra'); }
   }
 
   const handleDelete = async () => {

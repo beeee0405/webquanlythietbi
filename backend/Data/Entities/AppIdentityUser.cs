@@ -1,4 +1,4 @@
-namespace backend.Data.Entities;
+﻿namespace backend.Data.Entities;
 
 public class AppIdentityUser
 {
@@ -10,9 +10,10 @@ public class AppIdentityUser
     public string Phone { get; set; } = "";
     public string Department { get; set; } = "";
     public string Room { get; set; } = "";
-    public string Role { get; set; } = "Nhân viên"; // Quản trị viên, Kỹ thuật viên, Nhân viên
-    public string Status { get; set; } = "Đang hoạt động"; // Đang hoạt động, Nghỉ phép, Đã nghỉ việc
+    public string Role { get; set; } = "NhÃ¢n viÃªn"; // Quáº£n trá»‹ viÃªn, Ká»¹ thuáº­t viÃªn, NhÃ¢n viÃªn
+    public string Status { get; set; } = "Äang hoáº¡t Ä‘á»™ng"; // Äang hoáº¡t Ä‘á»™ng, Nghá»‰ phÃ©p, ÄÃ£ nghá»‰ viá»‡c
     public bool IsActive { get; set; } = true;
     public string CreatedAt { get; set; } = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
     public string LastLogin { get; set; } = "";
 }
+

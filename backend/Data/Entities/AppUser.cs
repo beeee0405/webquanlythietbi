@@ -1,4 +1,4 @@
-namespace backend.Data.Entities;
+﻿namespace backend.Data.Entities;
 
 public class AppUser
 {
@@ -8,9 +8,10 @@ public class AppUser
     public string Phone { get; set; } = "";
     public string Department { get; set; } = "";
     public string Room { get; set; } = "";
-    public string Role { get; set; } = ""; // Quản trị viên, Kỹ thuật viên, Nhân viên
-    public string Status { get; set; } = ""; // Đang hoạt động, Nghỉ phép, Đã nghỉ việc
+    public string Role { get; set; } = ""; // Quáº£n trá»‹ viÃªn, Ká»¹ thuáº­t viÃªn, NhÃ¢n viÃªn
+    public string Status { get; set; } = ""; // Äang hoáº¡t Ä‘á»™ng, Nghá»‰ phÃ©p, ÄÃ£ nghá»‰ viá»‡c
     public string CreatedAt { get; set; } = "";
     public string LastLogin { get; set; } = "";
     public string Avatar { get; set; } = "";
 }
+

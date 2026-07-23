@@ -1,12 +1,12 @@
-namespace backend.Data.Entities;
+﻿namespace backend.Data.Entities;
 
 public class InventorySession
 {
     public int Id { get; set; }
     public string Code { get; set; } = "";
-    public int RoomId { get; set; }
-    public int InspectorId { get; set; }
-    public string Status { get; set; } = ""; // Đang kiểm, Hoàn thành, Có lệch
+    public int? RoomId { get; set; }
+    public int? InspectorId { get; set; }
+    public string Status { get; set; } = ""; // Äang kiá»ƒm, HoÃ n thÃ nh, CÃ³ lá»‡ch
     public int TotalDevices { get; set; }
     public int CheckedDevices { get; set; }
     public int MissingDevices { get; set; }
@@ -19,3 +19,4 @@ public class InventorySession
     public Room? Room { get; set; }
     public AppUser? Inspector { get; set; }
 }
+
