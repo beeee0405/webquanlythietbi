@@ -40,10 +40,13 @@ public class SoftwareController : ControllerBase
         if (string.IsNullOrEmpty(software.LicenseType))
             software.LicenseType = "Bản quyền";
         
-        _db.Softwares.Add(software);
-        await _db.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(Get), EntityMapper.ToDto(software));
+        try {
+            _db.Softwares.Add(software);
+            await _db.SaveChangesAsync();
+            return CreatedAtAction(nameof(Get), EntityMapper.ToDto(software));
+        } catch (Exception ex) {
+            return StatusCode(500, new { message = ex.Message, inner = ex.InnerException?.Message, stackTrace = ex.ToString() });
+        }
     }
 
     [HttpPut("{id}")]

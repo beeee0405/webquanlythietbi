@@ -157,7 +157,30 @@ try
                 "ALTER TABLE \"Liquidations\" ADD COLUMN IF NOT EXISTS \"AssetCode\" text;",
                 "ALTER TABLE \"Liquidations\" ADD COLUMN IF NOT EXISTS \"AssetName\" text;",
                 "ALTER TABLE \"InventorySessions\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
-                "ALTER TABLE \"InventorySessions\" ADD COLUMN IF NOT EXISTS \"InspectorId\" integer;"
+                "ALTER TABLE \"InventorySessions\" ADD COLUMN IF NOT EXISTS \"InspectorId\" integer;",
+                "ALTER TABLE \"Softwares\" DROP COLUMN IF EXISTS \"Room\";",
+                "ALTER TABLE \"Tickets\" DROP COLUMN IF EXISTS \"Room\";",
+                "ALTER TABLE \"Tickets\" DROP COLUMN IF EXISTS \"Requester\";",
+                "ALTER TABLE \"Tickets\" DROP COLUMN IF EXISTS \"Assignee\";",
+                "ALTER TABLE \"Tickets\" DROP COLUMN IF EXISTS \"Device\";",
+                "ALTER TABLE \"Devices\" DROP COLUMN IF EXISTS \"Room\";",
+                "ALTER TABLE \"Devices\" DROP COLUMN IF EXISTS \"Owner\";",
+                "ALTER TABLE \"Cameras\" DROP COLUMN IF EXISTS \"Room\";",
+                "ALTER TABLE \"NetworkDevices\" DROP COLUMN IF EXISTS \"Room\";",
+                "ALTER TABLE \"MaintenanceItems\" DROP COLUMN IF EXISTS \"Room\";",
+                "ALTER TABLE \"MaintenanceItems\" DROP COLUMN IF EXISTS \"Assignee\";",
+                "ALTER TABLE \"MaintenanceItems\" DROP COLUMN IF EXISTS \"Device\";",
+                "ALTER TABLE \"Transfers\" DROP COLUMN IF EXISTS \"FromRoom\";",
+                "ALTER TABLE \"Transfers\" DROP COLUMN IF EXISTS \"ToRoom\";",
+                "ALTER TABLE \"Transfers\" DROP COLUMN IF EXISTS \"Requester\";",
+                "ALTER TABLE \"Transfers\" DROP COLUMN IF EXISTS \"Approver\";",
+                "ALTER TABLE \"Transfers\" DROP COLUMN IF EXISTS \"Device\";",
+                "ALTER TABLE \"Liquidations\" DROP COLUMN IF EXISTS \"Room\";",
+                "ALTER TABLE \"Liquidations\" DROP COLUMN IF EXISTS \"Requester\";",
+                "ALTER TABLE \"Liquidations\" DROP COLUMN IF EXISTS \"Approver\";",
+                "ALTER TABLE \"Liquidations\" DROP COLUMN IF EXISTS \"Device\";",
+                "ALTER TABLE \"InventorySessions\" DROP COLUMN IF EXISTS \"Room\";",
+                "ALTER TABLE \"InventorySessions\" DROP COLUMN IF EXISTS \"Inspector\";"
             };
             foreach (var sql in sqls) {
                 try { await db.Database.ExecuteSqlRawAsync(sql); } catch { }
