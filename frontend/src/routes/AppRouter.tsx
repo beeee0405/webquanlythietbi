@@ -90,17 +90,17 @@ export function AppRouter() {
       <Route path="/login" element={<LoginGuard />} />
       
       {/* Role-based routing */}
-      {user?.role === 'Người dùng' ? (
+      {user?.role === 'Quản trị viên' ? (
         <>
-          <Route path="/*" element={<EndUserRoutes />} />
+          <Route path="/*" element={<AdminRoutes />} />
         </>
       ) : user?.role === 'Chuyên viên Phòng Hạ tầng' ? (
         <>
           <Route path="/*" element={<InfrastructureRoutes />} />
         </>
-      ) : user?.role === 'Quản trị viên' ? (
+      ) : user ? (
         <>
-          <Route path="/*" element={<AdminRoutes />} />
+          <Route path="/*" element={<EndUserRoutes />} />
         </>
       ) : (
         <Route path="/*" element={<Navigate to="/login" replace />} />

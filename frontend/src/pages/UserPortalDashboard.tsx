@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { Plus, Search, AlertCircle, CheckCircle, Clock } from 'lucide-react'
+import { Plus, Search, AlertCircle, CheckCircle, Clock, LogOut } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -27,7 +27,7 @@ function statusTone(status: TicketStatus) {
 }
 
 export function UserPortalDashboard() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [query, setQuery] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'add' | 'view'>('add')
@@ -86,7 +86,7 @@ export function UserPortalDashboard() {
           className="glass-panel overflow-hidden p-6"
         >
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
+          <div>
               <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 Cổng Người Dùng
               </h1>
@@ -94,10 +94,16 @@ export function UserPortalDashboard() {
                 Xin chào <span className="font-semibold text-blue-400">{user?.fullName}</span> • Phòng {user?.room}
               </p>
             </div>
-            <Button className="gap-2" onClick={openNew}>
-              <Plus className="h-4 w-4" />
-              Báo Lỗi Mới
-            </Button>
+            <div className="flex gap-2">
+              <Button className="gap-2" onClick={openNew}>
+                <Plus className="h-4 w-4" />
+                Báo Lỗi Mới
+              </Button>
+              <Button variant="outline" className="gap-2" onClick={logout}>
+                <LogOut className="h-4 w-4" />
+                Đăng xuất
+              </Button>
+            </div>
           </div>
         </motion.section>
 
