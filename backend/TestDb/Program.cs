@@ -5,7 +5,7 @@ class Program
 {
     static void Main()
     {
-        var dbUrl = "postgresql://postgres.ktxkxtksixzjmmqtrsqi:webquanlithietbi@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres";
+        var dbUrl = "postgresql://postgres.ktxkxtksixzjmmqtrsqi:webquanlithietbi@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres";
         var uri = new Uri(dbUrl);
         var userInfo = uri.UserInfo.Split(':', 2);
         
