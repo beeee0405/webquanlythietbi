@@ -115,15 +115,60 @@ try
         var isNpgsql = db.Database.IsNpgsql();
         var table = isNpgsql ? "\"__EFMigrationsHistory\"" : "__EFMigrationsHistory";
         await db.Database.ExecuteSqlRawAsync($"CREATE TABLE IF NOT EXISTS {table} (\"MigrationId\" TEXT NOT NULL PRIMARY KEY, \"ProductVersion\" TEXT NOT NULL)");
-        try {
-            await db.Database.ExecuteSqlRawAsync($"INSERT INTO {table} (\"MigrationId\", \"ProductVersion\") VALUES ('20260723053250_InitPostgres', '8.0.2')");
-        } catch { }
+        var migrations = new[] {
+            "20260723053250_InitPostgres",
+            "20260723155551_RefactorToForeignKeys",
+            "20260723173444_FixSoftwareRoomId",
+            "20260723174051_MakeFKsNullable",
+            "20260723180125_AddAssetCodeToModules"
+        };
+        foreach (var m in migrations) {
+            try { await db.Database.ExecuteSqlRawAsync($"INSERT INTO {table} (\"MigrationId\", \"ProductVersion\") VALUES ('{m}', '8.0.2')"); } catch { }
+        }
+
+        if (isNpgsql)
+        {
+            var sqls = new[] {
+                "ALTER TABLE \"Softwares\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
+                "ALTER TABLE \"Tickets\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
+                "ALTER TABLE \"Tickets\" ADD COLUMN IF NOT EXISTS \"DeviceId\" integer;",
+                "ALTER TABLE \"Tickets\" ADD COLUMN IF NOT EXISTS \"RequesterId\" integer;",
+                "ALTER TABLE \"Tickets\" ADD COLUMN IF NOT EXISTS \"AssigneeId\" integer;",
+                "ALTER TABLE \"Devices\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
+                "ALTER TABLE \"Devices\" ADD COLUMN IF NOT EXISTS \"OwnerId\" integer;",
+                "ALTER TABLE \"Cameras\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
+                "ALTER TABLE \"NetworkDevices\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
+                "ALTER TABLE \"MaintenanceItems\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
+                "ALTER TABLE \"MaintenanceItems\" ADD COLUMN IF NOT EXISTS \"AssigneeId\" integer;",
+                "ALTER TABLE \"MaintenanceItems\" ADD COLUMN IF NOT EXISTS \"DeviceId\" integer;",
+                "ALTER TABLE \"MaintenanceItems\" ADD COLUMN IF NOT EXISTS \"AssetCode\" text;",
+                "ALTER TABLE \"MaintenanceItems\" ADD COLUMN IF NOT EXISTS \"AssetName\" text;",
+                "ALTER TABLE \"Transfers\" ADD COLUMN IF NOT EXISTS \"FromRoomId\" integer;",
+                "ALTER TABLE \"Transfers\" ADD COLUMN IF NOT EXISTS \"ToRoomId\" integer;",
+                "ALTER TABLE \"Transfers\" ADD COLUMN IF NOT EXISTS \"RequesterId\" integer;",
+                "ALTER TABLE \"Transfers\" ADD COLUMN IF NOT EXISTS \"ApproverId\" integer;",
+                "ALTER TABLE \"Transfers\" ADD COLUMN IF NOT EXISTS \"DeviceId\" integer;",
+                "ALTER TABLE \"Transfers\" ADD COLUMN IF NOT EXISTS \"AssetCode\" text;",
+                "ALTER TABLE \"Transfers\" ADD COLUMN IF NOT EXISTS \"AssetName\" text;",
+                "ALTER TABLE \"Liquidations\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
+                "ALTER TABLE \"Liquidations\" ADD COLUMN IF NOT EXISTS \"RequesterId\" integer;",
+                "ALTER TABLE \"Liquidations\" ADD COLUMN IF NOT EXISTS \"ApproverId\" integer;",
+                "ALTER TABLE \"Liquidations\" ADD COLUMN IF NOT EXISTS \"DeviceId\" integer;",
+                "ALTER TABLE \"Liquidations\" ADD COLUMN IF NOT EXISTS \"AssetCode\" text;",
+                "ALTER TABLE \"Liquidations\" ADD COLUMN IF NOT EXISTS \"AssetName\" text;",
+                "ALTER TABLE \"InventorySessions\" ADD COLUMN IF NOT EXISTS \"RoomId\" integer;",
+                "ALTER TABLE \"InventorySessions\" ADD COLUMN IF NOT EXISTS \"InspectorId\" integer;"
+            };
+            foreach (var sql in sqls) {
+                try { await db.Database.ExecuteSqlRawAsync(sql); } catch { }
+            }
+        }
     }
     catch { }
 
     // Apply migrations (works for both SQLite and PostgreSQL)
-    await db.Database.MigrateAsync();
-    await DbSeeder.SeedAsync(db);
+    try { await db.Database.MigrateAsync(); } catch (Exception ex) { logger.LogError(ex, "MigrateAsync failed"); }
+    try { await DbSeeder.SeedAsync(db); } catch (Exception ex) { logger.LogError(ex, "DbSeeder failed"); }
     logger.LogInformation("Database đã sẵn sàng. Admin account đã được tạo (nếu chưa tồn tại).");
 }
 catch (Exception ex)
