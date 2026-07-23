@@ -49,6 +49,66 @@ export function ReportsPage() {
   const maintenanceCount = overview.find(o => o.label === 'Bảo trì' || o.label === 'Kế hoạch tháng')?.value || '0'
   const maintenanceCost = maintenanceCostByMonth.reduce((sum, item) => sum + item.value, 0) || 0
 
+  const handleExportExcel = () => {
+    let csvContent = '\uFEFF' // UTF-8 BOM to open correctly in Excel with Vietnamese characters
+    csvContent += 'BÁO CÁO THỐNG KÊ HỆ THỐNG TDMU ITAMS\n'
+    csvContent += `Ngày xuất: ${new Date().toLocaleString('vi-VN')}\n\n`
+
+    csvContent += '1. CHỈ SỐ KPI CHÍNH\n'
+    csvContent += 'Chỉ số,Giá trị,Thay đổi\n'
+    overview.forEach((o: any) => {
+      csvContent += `"${o.label}","${o.value}","${o.delta}"\n`
+    })
+    csvContent += '\n'
+
+    csvContent += '2. PHÂN BỐ THIẾT BỊ THEO DANH MỤC\n'
+    csvContent += 'Danh mục,Số lượng\n'
+    deviceByCategory.forEach((c: any) => {
+      csvContent += `"${c.name}",${c.value}\n`
+    })
+    csvContent += '\n'
+
+    csvContent += '3. TRẠNG THÁI THIẾT BỊ\n'
+    csvContent += 'Trạng thái,Số lượng\n'
+    deviceByStatus.forEach((s: any) => {
+      csvContent += `"${s.name}",${s.value}\n`
+    })
+    csvContent += '\n'
+
+    csvContent += '4. TICKET THEO THÁNG\n'
+    csvContent += 'Tháng,Số lượng\n'
+    ticketByMonth.forEach((t: any) => {
+      csvContent += `"${t.name}",${t.value}\n`
+    })
+    csvContent += '\n'
+
+    csvContent += '5. CHI PHÍ BẢO TRÌ THEO THÁNG (Triệu VNĐ)\n'
+    csvContent += 'Tháng,Chi phí\n'
+    maintenanceCostByMonth.forEach((m: any) => {
+      csvContent += `"${m.name}",${m.value}\n`
+    })
+    csvContent += '\n'
+
+    csvContent += '6. PHÂN BỐ CÔNG VIỆC THEO PHÒNG\n'
+    csvContent += 'Tên phòng,Khối lượng\n'
+    roomWorkload.forEach((r: any) => {
+      csvContent += `"${r.name}",${r.value}\n`
+    })
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.setAttribute('href', url)
+    link.setAttribute('download', `BaoCao_TDMU_ITAMS_${new Date().toISOString().split('T')[0]}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleExportPDF = () => {
+    window.print()
+  }
+
   return (
     <div className="space-y-6">
       <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="glass-panel overflow-hidden p-6">
@@ -61,8 +121,8 @@ export function ReportsPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button className="gap-2"><Download className="h-4 w-4" />Xuất Excel</Button>
-            <Button variant="outline" className="gap-2"><BarChart3 className="h-4 w-4" />Xuất PDF</Button>
+            <Button className="gap-2" onClick={handleExportExcel}><Download className="h-4 w-4" />Xuất Excel</Button>
+            <Button variant="outline" className="gap-2" onClick={handleExportPDF}><BarChart3 className="h-4 w-4" />Xuất PDF</Button>
           </div>
         </div>
       </motion.section>

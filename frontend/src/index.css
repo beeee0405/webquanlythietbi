@@ -58,3 +58,27 @@
   }
 }
 
+@media print {
+  body, html, #root {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print, button, .no-print * {
+    display: none !important;
+  }
+  div.min-h-screen, main {
+    padding-left: 0 !important;
+    padding-top: 0 !important;
+    margin: 0 !important;
+  }
+  .glass-panel, .card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  .text-white, .text-slate-300, .text-slate-400 {
+    color: black !important;
+  }
+}
+

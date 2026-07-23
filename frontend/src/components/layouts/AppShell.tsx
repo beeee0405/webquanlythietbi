@@ -6,11 +6,17 @@ import { Footer } from './Footer'
 export function AppShell() {
   return (
     <div className="min-h-screen lg:pl-[286px]">
-      <Sidebar />
+      <div className="no-print">
+        <Sidebar />
+      </div>
       <main className="px-4 pb-6 pt-4 sm:px-6 lg:px-8">
-        <Navbar />
+        <div className="no-print">
+          <Navbar />
+        </div>
         <Outlet />
-        <Footer />
+        <div className="no-print">
+          <Footer />
+        </div>
       </main>
     </div>
   )
