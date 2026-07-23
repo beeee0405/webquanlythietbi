@@ -69,7 +69,22 @@ var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (dbUrl != null && (dbUrl.StartsWith("postgresql://") || dbUrl.StartsWith("postgres://")))
-        options.UseNpgsql(dbUrl);
+    {
+        // Parse Supabase URI format: postgresql://user:password@host:port/db
+        var uri = new Uri(dbUrl);
+        var userInfo = uri.UserInfo.Split(':');
+        var connStr = new Npgsql.NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.Port > 0 ? uri.Port : 5432,
+            Username = userInfo[0],
+            Password = userInfo.Length > 1 ? userInfo[1] : "",
+            Database = uri.AbsolutePath.TrimStart('/'),
+            SslMode = Npgsql.SslMode.Require,
+            TrustServerCertificate = true
+        }.ConnectionString;
+        options.UseNpgsql(connStr);
+    }
     else
         options.UseSqlite(dbUrl ?? "Data Source=devices.db");
 });
