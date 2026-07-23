@@ -16,6 +16,7 @@ const CATEGORIES = ['Hệ điều hành', 'Văn phòng', 'Bảo mật', 'Thiết
 const LICENSE_TYPES = ['Bản quyền', 'Mã nguồn mở', 'Dùng thử', 'Đăng ký hàng năm'] as const
 
 const schema = z.object({
+  id: z.string().optional(),
   name: z.string().min(2, 'Tên phần mềm tối thiểu 2 ký tự'),
   publisher: z.string().min(2, 'Vui lòng nhập nhà phát hành'),
   version: z.string().optional(),
