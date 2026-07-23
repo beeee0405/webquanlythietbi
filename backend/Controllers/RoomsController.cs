@@ -29,10 +29,13 @@ public class RoomsController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<RoomDto>> Create([FromBody] RoomDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code) || string.IsNullOrEmpty(dto.Name))
-            return BadRequest("Mã phòng và tên phòng không được để trống");
+        if (string.IsNullOrEmpty(dto.Name))
+            return BadRequest("Tên phòng không được để trống");
 
         var room = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(room.Code))
+            room.Code = "ROOM-" + new Random().Next(1000, 9999);
+
         _db.Rooms.Add(room);
         await _db.SaveChangesAsync();
 

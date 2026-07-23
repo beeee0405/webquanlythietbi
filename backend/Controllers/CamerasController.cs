@@ -29,10 +29,17 @@ public class CamerasController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<CameraDto>> Create([FromBody] CameraDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code) || string.IsNullOrEmpty(dto.Name))
-            return BadRequest("Mã camera và tên camera không được để trống");
+        if (string.IsNullOrEmpty(dto.Name))
+            return BadRequest("Tên camera không được để trống");
 
         var camera = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(camera.Code))
+            camera.Code = "CAM-" + new Random().Next(1000, 9999);
+        if (string.IsNullOrEmpty(camera.InstalledAt))
+            camera.InstalledAt = DateTime.Now.ToString("dd/MM/yyyy");
+        if (string.IsNullOrEmpty(camera.Status))
+            camera.Status = "Hoạt động";
+
         _db.Cameras.Add(camera);
         await _db.SaveChangesAsync();
 

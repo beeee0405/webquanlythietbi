@@ -29,10 +29,17 @@ public class NetworkController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<NetworkDeviceDto>> Create([FromBody] NetworkDeviceDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code) || string.IsNullOrEmpty(dto.Name))
-            return BadRequest("Mã thiết bị và tên thiết bị không được để trống");
+        if (string.IsNullOrEmpty(dto.Name))
+            return BadRequest("Tên thiết bị không được để trống");
 
         var device = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(device.Code))
+            device.Code = "NET-" + new Random().Next(1000, 9999);
+        if (string.IsNullOrEmpty(device.InstalledAt))
+            device.InstalledAt = DateTime.Now.ToString("dd/MM/yyyy");
+        if (string.IsNullOrEmpty(device.Status))
+            device.Status = "Hoạt động";
+
         _db.NetworkDevices.Add(device);
         await _db.SaveChangesAsync();
 

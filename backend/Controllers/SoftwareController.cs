@@ -33,6 +33,13 @@ public class SoftwareController : ControllerBase
             return BadRequest("Tên phần mềm và nhà phát hành không được để trống");
 
         var software = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(software.Status))
+            software.Status = "Đang dùng";
+        if (string.IsNullOrEmpty(software.Category))
+            software.Category = "Khác";
+        if (string.IsNullOrEmpty(software.LicenseType))
+            software.LicenseType = "Bản quyền";
+        
         _db.Softwares.Add(software);
         await _db.SaveChangesAsync();
 

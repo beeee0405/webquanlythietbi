@@ -36,10 +36,15 @@ public class DevicesController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<DeviceDto>> Create([FromBody] DeviceDto dto)
     {
-        if (string.IsNullOrEmpty(dto.AssetCode) || string.IsNullOrEmpty(dto.Name))
-            return BadRequest("Mã asset và tên thiết bị không được để trống");
+        if (string.IsNullOrEmpty(dto.Name))
+            return BadRequest("Tên thiết bị không được để trống");
 
         var device = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(device.AssetCode))
+            device.AssetCode = "DEV-" + new Random().Next(10000, 99999);
+        if (string.IsNullOrEmpty(device.UpdatedAt))
+            device.UpdatedAt = DateTime.Now.ToString("dd/MM/yyyy");
+        
         _db.Devices.Add(device);
         await _db.SaveChangesAsync();
 

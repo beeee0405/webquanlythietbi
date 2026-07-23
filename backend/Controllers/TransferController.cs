@@ -29,10 +29,14 @@ public class TransferController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<TransferDto>> Create([FromBody] TransferDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code))
-            return BadRequest("Mã điều chuyển không được để trống");
-
         var transfer = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(transfer.Code))
+            transfer.Code = "TR-" + new Random().Next(10000, 99999);
+        if (string.IsNullOrEmpty(transfer.Status))
+            transfer.Status = "Chờ duyệt";
+        if (string.IsNullOrEmpty(transfer.TransferredAt))
+            transfer.TransferredAt = DateTime.Now.ToString("dd/MM/yyyy");
+
         _db.Transfers.Add(transfer);
         await _db.SaveChangesAsync();
 

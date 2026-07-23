@@ -29,10 +29,17 @@ public class MaintenanceController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<MaintenanceDto>> Create([FromBody] MaintenanceDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code) || string.IsNullOrEmpty(dto.Title))
-            return BadRequest("Mã bảo trì và tiêu đề không được để trống");
+        if (string.IsNullOrEmpty(dto.Title))
+            return BadRequest("Tiêu đề bảo trì không được để trống");
 
         var item = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(item.Code))
+            item.Code = "MT-" + new Random().Next(10000, 99999);
+        if (string.IsNullOrEmpty(item.Status))
+            item.Status = "Chờ dưyệt";
+        if (string.IsNullOrEmpty(item.ScheduledAt))
+            item.ScheduledAt = DateTime.Now.ToString("dd/MM/yyyy");
+
         _db.MaintenanceItems.Add(item);
         await _db.SaveChangesAsync();
 

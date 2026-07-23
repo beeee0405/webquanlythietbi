@@ -29,10 +29,14 @@ public class InventoryController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<InventorySessionDto>> Create([FromBody] InventorySessionDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code))
-            return BadRequest("Mã đợt không được để trống");
-
         var session = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(session.Code))
+            session.Code = "KK-" + new Random().Next(10000, 99999);
+        if (string.IsNullOrEmpty(session.Status))
+            session.Status = "Khởi tạo";
+        if (string.IsNullOrEmpty(session.StartedAt))
+            session.StartedAt = DateTime.Now.ToString("dd/MM/yyyy");
+
         _db.InventorySessions.Add(session);
         await _db.SaveChangesAsync();
 

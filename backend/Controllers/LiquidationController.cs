@@ -29,10 +29,14 @@ public class LiquidationController : ControllerBase
     [Authorize(Policy = "InfrastructureOrAdmin")]
     public async Task<ActionResult<LiquidationDto>> Create([FromBody] LiquidationDto dto)
     {
-        if (string.IsNullOrEmpty(dto.Code))
-            return BadRequest("Mã yêu cầu không được để trống");
-
         var item = EntityMapper.ToEntity(dto);
+        if (string.IsNullOrEmpty(item.Code))
+            item.Code = "TL-" + new Random().Next(10000, 99999);
+        if (string.IsNullOrEmpty(item.Status))
+            item.Status = "Chờ duyệt";
+        if (string.IsNullOrEmpty(item.RequestedAt))
+            item.RequestedAt = DateTime.Now.ToString("dd/MM/yyyy");
+
         _db.Liquidations.Add(item);
         await _db.SaveChangesAsync();
 

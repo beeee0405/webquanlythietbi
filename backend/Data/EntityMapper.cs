@@ -66,17 +66,17 @@ public static class EntityMapper
 
     public static Device ToEntity(DeviceDto d) => new()
     {
-        AssetCode = d.AssetCode, Name = d.Name, Category = d.Category,
-        Brand = d.Brand, RoomId = int.TryParse(d.Room, out var r) ? r : 0, 
+        AssetCode = d.AssetCode ?? "", Name = d.Name ?? "", Category = d.Category ?? "",
+        Brand = d.Brand ?? "", RoomId = int.TryParse(d.Room, out var r) ? r : 0,
         OwnerId = int.TryParse(d.Owner, out var o) ? o : 0,
-        Status = d.Status, Warranty = d.Warranty, Serial = d.Serial,
-        PurchaseDate = d.PurchaseDate, UpdatedAt = d.UpdatedAt
+        Status = d.Status ?? "", Warranty = d.Warranty ?? "", Serial = d.Serial ?? "",
+        PurchaseDate = d.PurchaseDate ?? "", UpdatedAt = d.UpdatedAt ?? ""
     };
 
     public static Ticket ToEntity(TicketDto t) => new()
     {
         Code = t.Code ?? "", Subject = t.Subject ?? "", RequesterId = int.TryParse(t.Requester, out var req) ? req : 0,
-        RoomId = int.TryParse(t.Room, out var rm) ? rm : 0, DeviceId = int.TryParse(t.Device, out var dev) ? dev : 0, 
+        RoomId = int.TryParse(t.Room, out var rm) ? rm : 0, DeviceId = int.TryParse(t.Device, out var dev) ? dev : 0,
         Category = t.Category ?? "",
         Priority = t.Priority ?? "", Status = t.Status ?? "", Channel = t.Channel ?? "",
         AssigneeId = int.TryParse(t.Assignee, out var a) ? a : 0, Sla = t.Sla ?? "",
@@ -85,85 +85,86 @@ public static class EntityMapper
 
     public static MaintenanceItem ToEntity(MaintenanceDto m) => new()
     {
-        Code = m.Code, Title = m.Title, DeviceId = 0,
-        RoomId = int.TryParse(m.Room, out var r) ? r : 0, Type = m.Type,
-        Priority = m.Priority, Status = m.Status, AssigneeId = int.TryParse(m.Assignee, out var a) ? a : 0,
-        ScheduledAt = m.ScheduledAt, CompletedAt = m.CompletedAt,
-        Cost = m.Cost, Note = m.Note
+        Code = m.Code ?? "", Title = m.Title ?? "", DeviceId = 0,
+        RoomId = int.TryParse(m.Room, out var r) ? r : 0, Type = m.Type ?? "",
+        Priority = m.Priority ?? "", Status = m.Status ?? "", AssigneeId = int.TryParse(m.Assignee, out var a) ? a : 0,
+        ScheduledAt = m.ScheduledAt ?? "", CompletedAt = m.CompletedAt ?? "",
+        Cost = m.Cost ?? "", Note = m.Note ?? ""
     };
 
     public static Room ToEntity(RoomDto r) => new()
     {
-        Code = r.Code, Name = r.Name, Building = r.Building,
-        Floor = r.Floor, Type = r.Type,
+        Code = r.Code ?? "", Name = r.Name ?? "", Building = r.Building ?? "",
+        Floor = r.Floor ?? "", Type = r.Type ?? "",
         Capacity = int.TryParse(r.Capacity, out var cap) ? cap : 0,
-        Status = r.Status, Manager = r.Manager, Note = r.Note
+        Status = r.Status ?? "", Manager = r.Manager ?? "", Note = r.Note ?? ""
     };
 
     public static Camera ToEntity(CameraDto c) => new()
     {
-        Code = c.Code, Name = c.Name, RoomId = int.TryParse(c.Room, out var r) ? r : 0,
-        IpAddress = c.IpAddress, Brand = c.Brand, Model = c.Model,
-        Resolution = c.Resolution, Status = c.Status,
-        InstalledAt = c.InstalledAt, Warranty = c.Warranty, Note = c.Note
+        Code = c.Code ?? "", Name = c.Name ?? "", RoomId = int.TryParse(c.Room, out var r) ? r : 0,
+        IpAddress = c.IpAddress ?? "", Brand = c.Brand ?? "", Model = c.Model ?? "",
+        Resolution = c.Resolution ?? "", Status = c.Status ?? "",
+        InstalledAt = c.InstalledAt ?? "", Warranty = c.Warranty ?? "", Note = c.Note ?? ""
     };
 
     public static NetworkDevice ToEntity(NetworkDeviceDto n) => new()
     {
-        Code = n.Code, Name = n.Name, Type = n.Type, Brand = n.Brand,
-        Model = n.Model, RoomId = int.TryParse(n.Room, out var r) ? r : 0, IpAddress = n.IpAddress,
-        MacAddress = n.MacAddress, Vlan = n.Vlan, Port = n.Port,
-        Status = n.Status, Warranty = n.Warranty,
-        InstalledAt = n.InstalledAt, Note = n.Note
+        Code = n.Code ?? "", Name = n.Name ?? "", Type = n.Type ?? "", Brand = n.Brand ?? "",
+        Model = n.Model ?? "", RoomId = int.TryParse(n.Room, out var r) ? r : 0, IpAddress = n.IpAddress ?? "",
+        MacAddress = n.MacAddress ?? "", Vlan = n.Vlan ?? "", Port = n.Port ?? "",
+        Status = n.Status ?? "", Warranty = n.Warranty ?? "",
+        InstalledAt = n.InstalledAt ?? "", Note = n.Note ?? ""
     };
 
     public static InventorySession ToEntity(InventorySessionDto i) => new()
     {
-        Code = i.Code, RoomId = int.TryParse(i.Room, out var r) ? r : 0, 
+        Code = i.Code ?? "", RoomId = int.TryParse(i.Room, out var r) ? r : 0,
         InspectorId = int.TryParse(i.Inspector, out var insp) ? insp : 0,
-        Status = i.Status,
+        Status = i.Status ?? "",
         TotalDevices = int.TryParse(i.TotalDevices, out var t) ? t : 0,
         CheckedDevices = int.TryParse(i.CheckedDevices, out var c) ? c : 0,
         MissingDevices = int.TryParse(i.MissingDevices, out var m) ? m : 0,
         ExtraDevices = int.TryParse(i.ExtraDevices, out var e) ? e : 0,
-        StartedAt = i.StartedAt, CompletedAt = i.CompletedAt, Note = i.Note
+        StartedAt = i.StartedAt ?? "", CompletedAt = i.CompletedAt ?? "", Note = i.Note ?? ""
     };
 
     public static Transfer ToEntity(TransferDto t) => new()
     {
-        Code = t.Code, DeviceId = 0,
-        FromRoomId = int.TryParse(t.FromRoom, out var fr) ? fr : 0, 
+        Code = t.Code ?? "", DeviceId = 0,
+        FromRoomId = int.TryParse(t.FromRoom, out var fr) ? fr : 0,
         ToRoomId = int.TryParse(t.ToRoom, out var tr) ? tr : 0,
-        RequesterId = int.TryParse(t.Requester, out var req) ? req : 0, 
+        RequesterId = int.TryParse(t.Requester, out var req) ? req : 0,
         ApproverId = int.TryParse(t.Approver, out var app) ? app : 0,
-        Status = t.Status, TransferredAt = t.TransferredAt,
-        ApprovedAt = t.ApprovedAt, Note = t.Note
+        Status = t.Status ?? "", TransferredAt = t.TransferredAt ?? "",
+        ApprovedAt = t.ApprovedAt ?? "", Note = t.Note ?? ""
     };
 
     public static Liquidation ToEntity(LiquidationDto l) => new()
     {
-        Code = l.Code, DeviceId = 0,
-        RoomId = int.TryParse(l.Room, out var r) ? r : 0, Reason = l.Reason, Condition = l.Condition,
-        Status = l.Status, RequesterId = int.TryParse(l.Requester, out var req) ? req : 0, 
+        Code = l.Code ?? "", DeviceId = 0,
+        RoomId = int.TryParse(l.Room, out var r) ? r : 0, Reason = l.Reason ?? "", Condition = l.Condition ?? "",
+        Status = l.Status ?? "", RequesterId = int.TryParse(l.Requester, out var req) ? req : 0,
         ApproverId = int.TryParse(l.Approver, out var app) ? app : 0,
-        ResidualValue = decimal.TryParse(l.ResidualValue.Replace(",", ""), out var v) ? v : 0,
-        RequestedAt = l.RequestedAt, CompletedAt = l.CompletedAt, Note = l.Note
+        ResidualValue = decimal.TryParse((l.ResidualValue ?? "0").Replace(",", ""), out var v) ? v : 0,
+        RequestedAt = l.RequestedAt ?? "", CompletedAt = l.CompletedAt ?? "", Note = l.Note ?? ""
     };
 
     public static Software ToEntity(SoftwareDto s) => new()
     {
-        Name = s.Name, Publisher = s.Publisher, Version = s.Version,
-        Category = s.Category, LicenseType = s.LicenseType,
-        LicenseKey = s.LicenseKey,
+        Name = s.Name ?? "", Publisher = s.Publisher ?? "", Version = s.Version ?? "",
+        Category = s.Category ?? "", LicenseType = s.LicenseType ?? "",
+        LicenseKey = s.LicenseKey ?? "",
         TotalLicenses = int.TryParse(s.TotalLicenses, out var tl) ? tl : 0,
         UsedLicenses = int.TryParse(s.UsedLicenses, out var ul) ? ul : 0,
-        ExpiresAt = s.ExpiresAt, Status = s.Status, Note = s.Note
+        ExpiresAt = s.ExpiresAt ?? "", Status = s.Status ?? "", Note = s.Note ?? ""
     };
 
     public static AppUser ToEntity(AppUserDto u) => new()
     {
-        FullName = u.FullName, Email = u.Email, Phone = u.Phone,
-        Department = u.Department, Role = u.Role,
-        Status = u.Status, CreatedAt = u.CreatedAt, LastLogin = u.LastLogin
+        FullName = u.FullName ?? "", Email = u.Email ?? "", Phone = u.Phone ?? "",
+        Department = u.Department ?? "", Role = u.Role ?? "",
+        Status = u.Status ?? "", CreatedAt = u.CreatedAt ?? "", LastLogin = u.LastLogin ?? ""
     };
 }
+
