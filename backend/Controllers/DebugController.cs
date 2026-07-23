@@ -29,8 +29,10 @@ public class DebugController : ControllerBase
     {
         try
         {
-            var canConnect = await _db.Database.CanConnectAsync();
+            await _db.Database.OpenConnectionAsync();
+            var canConnect = true;
             var provider = _db.Database.ProviderName;
+            await _db.Database.CloseConnectionAsync();
             return Ok(new { connected = canConnect, provider });
         }
         catch (Exception ex)
