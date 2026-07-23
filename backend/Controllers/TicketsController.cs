@@ -42,6 +42,18 @@ public class TicketsController : ControllerBase
 
         if (string.IsNullOrEmpty(ticket.UpdatedAt))
             ticket.UpdatedAt = ticket.CreatedAt;
+            
+        if (string.IsNullOrEmpty(ticket.Status))
+            ticket.Status = "Mới";
+            
+        if (string.IsNullOrEmpty(ticket.Priority))
+            ticket.Priority = "Trung bình";
+            
+        if (string.IsNullOrEmpty(ticket.Channel))
+            ticket.Channel = "Trực tiếp";
+            
+        if (string.IsNullOrEmpty(ticket.Sla))
+            ticket.Sla = "8h";
 
         _db.Tickets.Add(ticket);
         await _db.SaveChangesAsync();

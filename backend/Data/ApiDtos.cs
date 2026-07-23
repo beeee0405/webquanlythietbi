@@ -23,20 +23,20 @@ public record DeviceDto(
     string UpdatedAt);
 
 public record TicketDto(
-    string Id,
-    string Code,
-    string Subject,
-    string Requester,
-    string Room,
-    string Device,
-    string Category,
-    string Priority,
-    string Status,
-    string Channel,
-    string Assignee,
-    string Sla,
-    string CreatedAt,
-    string UpdatedAt);
+    string? Id,
+    string? Code,
+    string? Subject,
+    string? Requester,
+    string? Room,
+    string? Device,
+    string? Category,
+    string? Priority,
+    string? Status,
+    string? Channel,
+    string? Assignee,
+    string? Sla,
+    string? CreatedAt,
+    string? UpdatedAt);
 
 public record MaintenanceDto(
     string Id,

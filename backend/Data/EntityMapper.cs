@@ -74,11 +74,11 @@ public static class EntityMapper
 
     public static Ticket ToEntity(TicketDto t) => new()
     {
-        Code = t.Code, Subject = t.Subject, Requester = t.Requester,
-        Room = t.Room, Device = t.Device, Category = t.Category,
-        Priority = t.Priority, Status = t.Status, Channel = t.Channel,
-        Assignee = t.Assignee, Sla = t.Sla,
-        CreatedAt = t.CreatedAt, UpdatedAt = t.UpdatedAt
+        Code = t.Code ?? "", Subject = t.Subject ?? "", Requester = t.Requester ?? "",
+        Room = t.Room ?? "", Device = t.Device ?? "", Category = t.Category ?? "",
+        Priority = t.Priority ?? "", Status = t.Status ?? "", Channel = t.Channel ?? "",
+        Assignee = t.Assignee ?? "", Sla = t.Sla ?? "",
+        CreatedAt = t.CreatedAt ?? "", UpdatedAt = t.UpdatedAt ?? ""
     };
 
     public static MaintenanceItem ToEntity(MaintenanceDto m) => new()
