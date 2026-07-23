@@ -231,42 +231,42 @@ public record RoomManagementResponse(
 
 public record CameraManagementResponse(
     IReadOnlyList<KpiDto> Overview,
-    IReadOnlyList<PointDto> StatusBreakdown,
+    IReadOnlyList<PointDto> StatusData,
     IReadOnlyList<PointDto> RoomLoad,
     IReadOnlyList<CameraDto> Items,
     IReadOnlyList<string> Statuses);
 
 public record NetworkManagementResponse(
     IReadOnlyList<KpiDto> Overview,
-    IReadOnlyList<PointDto> TypeBreakdown,
-    IReadOnlyList<PointDto> StatusBreakdown,
+    IReadOnlyList<PointDto> TypeData,
+    IReadOnlyList<PointDto> StatusData,
     IReadOnlyList<NetworkDeviceDto> Items,
     IReadOnlyList<string> Types,
     IReadOnlyList<string> Statuses);
 
 public record InventoryManagementResponse(
     IReadOnlyList<KpiDto> Overview,
-    IReadOnlyList<PointDto> StatusBreakdown,
+    IReadOnlyList<PointDto> StatusData,
     IReadOnlyList<InventorySessionDto> Items,
     IReadOnlyList<string> Statuses);
 
 public record TransferManagementResponse(
     IReadOnlyList<KpiDto> Overview,
-    IReadOnlyList<PointDto> StatusBreakdown,
+    IReadOnlyList<PointDto> StatusData,
     IReadOnlyList<TransferDto> Items,
     IReadOnlyList<string> Statuses);
 
 public record LiquidationManagementResponse(
     IReadOnlyList<KpiDto> Overview,
-    IReadOnlyList<PointDto> StatusBreakdown,
-    IReadOnlyList<PointDto> ConditionBreakdown,
+    IReadOnlyList<PointDto> StatusData,
+    IReadOnlyList<PointDto> ConditionData,
     IReadOnlyList<LiquidationDto> Items,
     IReadOnlyList<string> Statuses);
 
 public record SoftwareManagementResponse(
     IReadOnlyList<KpiDto> Overview,
-    IReadOnlyList<PointDto> CategoryBreakdown,
-    IReadOnlyList<PointDto> LicenseTypeBreakdown,
+    IReadOnlyList<PointDto> CategoryData,
+    IReadOnlyList<PointDto> LicenseTypeData,
     IReadOnlyList<SoftwareDto> Items,
     IReadOnlyList<string> Categories,
     IReadOnlyList<string> Statuses);

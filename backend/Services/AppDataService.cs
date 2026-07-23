@@ -79,9 +79,9 @@ public class AppDataService
             realKpis,
             BuildTicketStatusData(tickets),
             BuildTicketPriorityData(tickets),
-            new List<PointDto>(),
-            new List<PointDto>(),
-            new List<PointDto>(),
+            BuildTicketChannelData(tickets),
+            BuildTicketSlaTrendData(tickets),
+            BuildTicketAgeBuckets(tickets),
             tickets,
             new List<string> { "Mới", "Đang xử lý", "Chờ phản hồi", "Hoàn thành", "Đóng" },
             new List<string> { "Khẩn cấp", "Cao", "Trung bình", "Thấp" },
@@ -663,4 +663,32 @@ public class AppDataService
             .Take(6)
             .ToList();
     }
+
+    private static IReadOnlyList<PointDto> BuildTicketChannelData(IReadOnlyList<TicketDto> tickets)
+    {
+        return tickets
+            .GroupBy(t => string.IsNullOrEmpty(t.Channel) ? "Khác" : t.Channel)
+            .Select(g => new PointDto(g.Key, g.Count()))
+            .ToList();
+    }
+
+    private static IReadOnlyList<PointDto> BuildTicketSlaTrendData(IReadOnlyList<TicketDto> tickets)
+    {
+        return tickets
+            .GroupBy(t => string.IsNullOrEmpty(t.CreatedAt) ? "Khác" : (t.CreatedAt.Length >= 10 ? t.CreatedAt.Substring(3, 7) : t.CreatedAt))
+            .Select(g => new PointDto(g.Key, g.Count()))
+            .OrderBy(p => p.Name)
+            .ToList();
+    }
+
+    private static IReadOnlyList<PointDto> BuildTicketAgeBuckets(IReadOnlyList<TicketDto> tickets)
+    {
+        return new List<PointDto>
+        {
+            new("< 1 ngày", tickets.Count(t => t.Status == "Mới")),
+            new("1-3 ngày", tickets.Count(t => t.Status == "Đang xử lý")),
+            new("> 3 ngày", tickets.Count(t => t.Status == "Chờ phản hồi"))
+        };
+    }
 }
+
