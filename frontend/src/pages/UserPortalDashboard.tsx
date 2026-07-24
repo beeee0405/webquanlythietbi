@@ -37,8 +37,7 @@ export function UserPortalDashboard() {
     queryKey: ['user-tickets', user?.id],
     queryFn: async () => {
       const response = await getTicketData()
-      // BUG-05 FIX: Backend now returns requester as FullName (after BUG-01 fix)
-      // Filter by fullName since EntityMapper now resolves navigation properties
+      // Filter by the logged-in user's fullName (resolved by EntityMapper via AppUser navigation)
       if (response.items && user) {
         return {
           ...response,
@@ -50,7 +49,8 @@ export function UserPortalDashboard() {
       }
       return response
     },
-    staleTime: 60_000
+    staleTime: 30_000,
+    refetchInterval: 30_000 // Auto-refresh every 30 seconds
   })
 
   const items = data?.items ?? []
@@ -77,11 +77,18 @@ export function UserPortalDashboard() {
 
   const handleAdd = async (v: any) => {
     try {
-      await createTicket(v)
-      refetch()
+      // Inject the logged-in user's name and room so backend and filter both align
+      const ticketPayload = {
+        ...v,
+        requester: user?.fullName ?? v.requester,
+        room: v.room || user?.room || ''
+      }
+      await createTicket(ticketPayload)
+      await refetch()
       setDialogOpen(false)
     } catch (e) {
-      console.error(e)
+      console.error('Tạo phiếu thất bại:', e)
+      throw e // Re-throw so TicketDialog shows error toast
     }
   }
 
@@ -269,6 +276,8 @@ export function UserPortalDashboard() {
         item={selectedTicket}
         onAdd={handleAdd}
         isUserPortal={true}
+        defaultRequester={user?.fullName}
+        defaultRoom={user?.room}
       />
     </div>
   )

@@ -39,22 +39,24 @@ interface Props {
   onEdit?: (id: string, v: FormValues) => void
   onDelete?: (id: string) => void
   isUserPortal?: boolean
+  defaultRequester?: string
+  defaultRoom?: string
 }
 
-export function TicketDialog({ mode, open, onOpenChange, item, onAdd, onEdit, onDelete, isUserPortal }: Props) {
+export function TicketDialog({ mode, open, onOpenChange, item, onAdd, onEdit, onDelete, isUserPortal, defaultRequester, defaultRoom }: Props) {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { subject: '', requester: '', room: '', device: '', category: 'Phần cứng', priority: 'Trung bình', status: 'Mới', channel: 'Trực tiếp', assignee: '', sla: '8h', note: '' },
+    defaultValues: { subject: '', requester: defaultRequester ?? '', room: defaultRoom ?? '', device: '', category: 'Phần cứng', priority: 'Trung bình', status: 'Mới', channel: 'Trực tiếp', assignee: '', sla: '8h', note: '' },
   })
 
   useEffect(() => {
     if (!open) return
     if (mode === 'add') {
-      reset({ subject: '', requester: '', room: '', device: '', category: 'Phần cứng', priority: 'Trung bình', status: 'Mới', channel: 'Trực tiếp', assignee: '', sla: '8h', note: '' })
+      reset({ subject: '', requester: defaultRequester ?? '', room: defaultRoom ?? '', device: '', category: 'Phần cứng', priority: 'Trung bình', status: 'Mới', channel: 'Trực tiếp', assignee: '', sla: '8h', note: '' })
     } else if (item) {
       reset({ subject: item.subject, requester: item.requester, room: item.room, device: item.device, category: item.category, priority: item.priority, status: item.status, channel: item.channel, assignee: item.assignee, sla: item.sla, note: '' })
     }
-  }, [open, mode, item, reset])
+  }, [open, mode, item, reset, defaultRequester, defaultRoom])
 
   const onSubmit = async (v: FormValues) => {
     try {

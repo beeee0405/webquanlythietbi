@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.Data.Entities;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,7 @@ public class TicketsController : ControllerBase
 
         var ticket = EntityMapper.ToEntity(dto);
 
-        // BUG-06: Auto-set RequesterId from JWT claims
+        // Auto-set RequesterId from JWT claims
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!string.IsNullOrEmpty(userIdClaim))
         {
@@ -45,12 +46,33 @@ public class TicketsController : ControllerBase
             {
                 var appUser = _db.AppUsers.FirstOrDefault(u => u.Email == identityUser.Email);
                 if (appUser != null)
+                {
                     ticket.RequesterId = appUser.Id;
+                }
+                else
+                {
+                    // AppUser not yet created - create one on the fly so ticket can be saved
+                    var newUser = new AppUser
+                    {
+                        Email = identityUser.Email ?? "",
+                        FullName = identityUser.FullName ?? identityUser.Username ?? "Người dùng",
+                        Phone = identityUser.Phone ?? "",
+                        Department = identityUser.Department ?? "",
+                        Room = identityUser.Room ?? "",
+                        Role = "User",
+                        Status = "Active",
+                        CreatedAt = DateTime.Now.ToString("dd/MM/yyyy")
+                    };
+                    _db.AppUsers.Add(newUser);
+                    await _db.SaveChangesAsync();
+                    ticket.RequesterId = newUser.Id;
+                }
             }
+            // If identity user not found at all, leave RequesterId null (ticket still saved)
         }
 
         if (string.IsNullOrEmpty(ticket.Code))
-            ticket.Code = "TKT-" + Random.Shared.Next(10000, 99999); // BUG-12
+            ticket.Code = "TKT-" + Random.Shared.Next(10000, 99999);
 
         if (string.IsNullOrEmpty(ticket.CreatedAt))
             ticket.CreatedAt = DateTime.Now.ToString("dd/MM/yyyy");
