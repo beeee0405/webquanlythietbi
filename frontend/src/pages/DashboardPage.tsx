@@ -122,13 +122,19 @@ export function DashboardPage() {
           <CardHeader>
             <CardTitle>Chỉ số cảnh báo nhanh</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-300">
-            {(data?.alerts ?? []).map(item => (
-              <div key={item.label} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
-                <div className="text-slate-400">{item.label}</div>
-                <div className="mt-1 text-2xl font-bold text-white">{item.value}</div>
+          <CardContent className="max-h-[380px] overflow-y-auto space-y-3 text-sm text-slate-300 pr-1">
+            {(data?.alerts ?? []).length > 0 ? (
+              (data?.alerts ?? []).map((item, index) => (
+                <div key={`${item.label}-${item.value}-${index}`} className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">{item.label}</div>
+                  <div className="mt-1.5 text-sm font-medium leading-relaxed text-white">{item.value}</div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-[16px] border border-slate-800 bg-slate-900/60 p-3 text-center text-slate-500">
+                Không có cảnh báo nào
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
       </section>

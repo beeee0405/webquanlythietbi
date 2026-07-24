@@ -168,16 +168,84 @@ public class AppDataService
             alerts.Add(new AlertDto("Điều chuyển chờ duyệt", $"Yêu cầu điều chuyển [{t.Code}] đang chờ duyệt"));
         }
 
+        // Calculate Ticket Monthly
+        var ticketMonthly = tickets
+            .Where(t => !string.IsNullOrEmpty(t.CreatedAt))
+            .GroupBy(t => {
+                var datePart = t.CreatedAt!.Split(' ')[0];
+                var parts = datePart.Split('/');
+                if (parts.Length == 3)
+                {
+                    return $"{parts[1]}/{parts[2]}"; // MM/yyyy
+                }
+                return "Khác";
+            })
+            .Select(g => new PointDto(g.Key, g.Count()))
+            .OrderBy(p => p.Name)
+            .ToList();
+
+        // Calculate Maintenance Costs & Trend
+        var maintenanceItems = await _db.MaintenanceItems.ToListAsync();
+        var maintenanceCosts = maintenanceItems
+            .Where(m => m.Status == "Hoàn thành" && !string.IsNullOrEmpty(m.CompletedAt))
+            .GroupBy(m => {
+                var datePart = m.CompletedAt!.Split(' ')[0];
+                var parts = datePart.Split('/');
+                if (parts.Length == 3)
+                {
+                    return $"{parts[1]}/{parts[2]}"; // MM/yyyy
+                }
+                return "Khác";
+            })
+            .Select(g => {
+                decimal totalCost = 0;
+                foreach (var item in g)
+                {
+                    if (decimal.TryParse(item.Cost, out var val))
+                    {
+                        totalCost += val;
+                    }
+                }
+                return new PointDto(g.Key, totalCost);
+            })
+            .OrderBy(p => p.Name)
+            .ToList();
+
+        var maintenanceTrend = maintenanceItems
+            .GroupBy(m => {
+                var datePart = (string.IsNullOrEmpty(m.CompletedAt) ? m.ScheduledAt ?? "" : m.CompletedAt).Split(' ')[0];
+                var parts = datePart.Split('/');
+                if (parts.Length == 3)
+                {
+                    return $"{parts[1]}/{parts[2]}"; // MM/yyyy
+                }
+                return "Khác";
+            })
+            .Select(g => new PointDto(g.Key, g.Count()))
+            .OrderBy(p => p.Name)
+            .ToList();
+
+        // Calculate Asset Lifecycle
+        var assetLifecycle = new List<PointDto>
+        {
+            new("Mua mới", devices.Count),
+            new("Đang sử dụng", devices.Count(d => d.Status == "Hoạt động")),
+            new("Đang sửa chữa", devices.Count(d => d.Status == "Bảo trì" || d.Status == "Đang sửa")),
+            new("Yêu cầu điều chuyển", await _db.Transfers.CountAsync(t => t.Status == "Chờ duyệt")),
+            new("Chờ thanh lý", await _db.Liquidations.CountAsync(l => l.Status == "Chờ duyệt")),
+            new("Đã thanh lý", await _db.Liquidations.CountAsync(l => l.Status == "Hoàn thành"))
+        };
+
         return new DashboardResponse(
             realKpis,
             BuildDeviceTypeData(devices),
             BuildStatusBreakdown(devices),
-            new List<PointDto>(),
-            new List<PointDto>(),
-            new List<PointDto>(),
+            ticketMonthly,
+            maintenanceCosts,
+            maintenanceTrend,
             BuildTicketPriorityData(tickets),
             BuildRoomLoad(devices),
-            new List<PointDto>(),
+            assetLifecycle,
             alerts,
             devices,
             tickets);
