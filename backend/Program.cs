@@ -16,18 +16,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        // Lấy danh sách allowed origins từ config (hoặc dùng mặc định)
-        var allowedOrigins = builder.Configuration
-            .GetSection("AllowedOrigins")
-            .Get<string[]>()
-            ?? new[]
-            {
-                "http://localhost:5173",
-                "http://localhost:3000",
-                "https://webquanlythietbi.vercel.app"
-            };
-
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(_ => true) // Dynamically allow any origin to support credentials and prevent CORS errors
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -219,6 +208,42 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("Frontend");
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Unhandled exception occurred during request execution: {Message}", ex.Message);
+
+        // Clear response if headers haven't started sending yet
+        if (!context.Response.HasStarted)
+        {
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/json";
+
+            // Ensure CORS headers are preserved on error responses
+            if (context.Request.Headers.TryGetValue("Origin", out var origin))
+            {
+                context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+                context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+            }
+
+            var errorResponse = new 
+            { 
+                error = "Internal Server Error", 
+                message = ex.Message, 
+                detail = ex.InnerException?.Message 
+            };
+            await context.Response.WriteAsJsonAsync(errorResponse);
+        }
+    }
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
