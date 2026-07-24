@@ -40,6 +40,37 @@ public class AuthService : IAuthService
                 return null;
             }
 
+            // Self-healing: Ensure a corresponding AppUser exists and matches IdentityUser details (fixes tickets/devices mapping)
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                var appUser = await _db.AppUsers.FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email.ToLower());
+                if (appUser == null)
+                {
+                    appUser = new AppUser
+                    {
+                        FullName = user.FullName,
+                        Email = user.Email,
+                        Phone = user.Phone,
+                        Department = user.Department,
+                        Room = user.Room,
+                        Role = "Nhân viên",
+                        Status = "Đang hoạt động",
+                        CreatedAt = DateTime.Now.ToString("dd/MM/yyyy")
+                    };
+                    _db.AppUsers.Add(appUser);
+                }
+                else
+                {
+                    // Sync details to keep AppUser in sync with their active AppIdentityUser profile
+                    if (appUser.FullName != user.FullName) appUser.FullName = user.FullName;
+                    if (appUser.Phone != user.Phone) appUser.Phone = user.Phone;
+                    if (appUser.Department != user.Department) appUser.Department = user.Department;
+                    if (appUser.Room != user.Room) appUser.Room = user.Room;
+                    if (appUser.Role != user.Role) appUser.Role = user.Role;
+                    if (appUser.Status != user.Status) appUser.Status = user.Status;
+                }
+            }
+
             var accessToken = _jwtService.GenerateAccessToken(user);
             var refreshToken = _jwtService.GenerateRefreshToken();
 
@@ -87,6 +118,21 @@ public class AuthService : IAuthService
             };
 
             _db.IdentityUsers.Add(user);
+            await _db.SaveChangesAsync();
+
+            // Create corresponding AppUser entry so they can request tickets and own devices
+            var appUser = new AppUser
+            {
+                FullName = user.FullName,
+                Email = user.Email,
+                Phone = user.Phone,
+                Department = user.Department,
+                Room = user.Room,
+                Role = "Nhân viên",
+                Status = "Đang hoạt động",
+                CreatedAt = DateTime.Now.ToString("dd/MM/yyyy")
+            };
+            _db.AppUsers.Add(appUser);
             await _db.SaveChangesAsync();
 
             var accessToken = _jwtService.GenerateAccessToken(user);
