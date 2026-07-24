@@ -43,31 +43,33 @@ public class AuthService : IAuthService
             // Self-healing: Ensure a corresponding AppUser exists and matches IdentityUser details (fixes tickets/devices mapping)
             if (!string.IsNullOrEmpty(user.Email))
             {
-                var appUser = await _db.AppUsers.FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email.ToLower());
+                var appUser = await _db.AppUsers.FirstOrDefaultAsync(u => u.Email != null && u.Email.ToLower() == user.Email.ToLower());
                 if (appUser == null)
                 {
                     appUser = new AppUser
                     {
-                        FullName = user.FullName,
-                        Email = user.Email,
-                        Phone = user.Phone,
-                        Department = user.Department,
-                        Room = user.Room,
+                        FullName = user.FullName ?? "",
+                        Email = user.Email ?? "",
+                        Phone = user.Phone ?? "",
+                        Department = user.Department ?? "",
+                        Room = user.Room ?? "",
                         Role = "Nhân viên",
                         Status = "Đang hoạt động",
-                        CreatedAt = DateTime.Now.ToString("dd/MM/yyyy")
+                        CreatedAt = DateTime.Now.ToString("dd/MM/yyyy"),
+                        LastLogin = "",
+                        Avatar = ""
                     };
                     _db.AppUsers.Add(appUser);
                 }
                 else
                 {
-                    // Sync details to keep AppUser in sync with their active AppIdentityUser profile
-                    if (appUser.FullName != user.FullName) appUser.FullName = user.FullName;
-                    if (appUser.Phone != user.Phone) appUser.Phone = user.Phone;
-                    if (appUser.Department != user.Department) appUser.Department = user.Department;
-                    if (appUser.Room != user.Room) appUser.Room = user.Room;
-                    if (appUser.Role != user.Role) appUser.Role = user.Role;
-                    if (appUser.Status != user.Status) appUser.Status = user.Status;
+                    // Sync details to keep AppUser in sync with their active AppIdentityUser profile (null-safe)
+                    if (appUser.FullName != (user.FullName ?? "")) appUser.FullName = user.FullName ?? "";
+                    if (appUser.Phone != (user.Phone ?? "")) appUser.Phone = user.Phone ?? "";
+                    if (appUser.Department != (user.Department ?? "")) appUser.Department = user.Department ?? "";
+                    if (appUser.Room != (user.Room ?? "")) appUser.Room = user.Room ?? "";
+                    if (appUser.Role != (user.Role ?? "")) appUser.Role = user.Role ?? "";
+                    if (appUser.Status != (user.Status ?? "")) appUser.Status = user.Status ?? "";
                 }
             }
 
@@ -78,8 +80,8 @@ public class AuthService : IAuthService
             await _db.SaveChangesAsync();
 
             var userInfo = new UserInfoDto(
-                user.Id, user.Username, user.Email, user.FullName,
-                user.Phone, user.Department, user.Room, user.Role, user.Status);
+                user.Id ?? "", user.Username ?? "", user.Email ?? "", user.FullName ?? "",
+                user.Phone ?? "", user.Department ?? "", user.Room ?? "", user.Role ?? "", user.Status ?? "");
 
             return new LoginResponse(accessToken, refreshToken, userInfo);
         }
@@ -105,12 +107,12 @@ public class AuthService : IAuthService
 
             var user = new AppIdentityUser
             {
-                Username = request.Username,
-                Email = request.Email,
-                FullName = request.FullName,
-                Phone = request.Phone,
-                Department = request.Department,
-                Room = request.Room,
+                Username = request.Username ?? "",
+                Email = request.Email ?? "",
+                FullName = request.FullName ?? "",
+                Phone = request.Phone ?? "",
+                Department = request.Department ?? "",
+                Room = request.Room ?? "",
                 Role = "Người dùng",
                 Status = "Đang hoạt động",
                 PasswordHash = HashPassword(request.Password),
@@ -120,17 +122,19 @@ public class AuthService : IAuthService
             _db.IdentityUsers.Add(user);
             await _db.SaveChangesAsync();
 
-            // Create corresponding AppUser entry so they can request tickets and own devices
+            // Create corresponding AppUser entry so they can request tickets and own devices (null-safe)
             var appUser = new AppUser
             {
-                FullName = user.FullName,
-                Email = user.Email,
-                Phone = user.Phone,
-                Department = user.Department,
-                Room = user.Room,
+                FullName = user.FullName ?? "",
+                Email = user.Email ?? "",
+                Phone = user.Phone ?? "",
+                Department = user.Department ?? "",
+                Room = user.Room ?? "",
                 Role = "Nhân viên",
                 Status = "Đang hoạt động",
-                CreatedAt = DateTime.Now.ToString("dd/MM/yyyy")
+                CreatedAt = DateTime.Now.ToString("dd/MM/yyyy"),
+                LastLogin = "",
+                Avatar = ""
             };
             _db.AppUsers.Add(appUser);
             await _db.SaveChangesAsync();
@@ -139,8 +143,8 @@ public class AuthService : IAuthService
             var refreshToken = _jwtService.GenerateRefreshToken();
 
             var userInfo = new UserInfoDto(
-                user.Id, user.Username, user.Email, user.FullName,
-                user.Phone, user.Department, user.Room, user.Role, user.Status);
+                user.Id ?? "", user.Username ?? "", user.Email ?? "", user.FullName ?? "",
+                user.Phone ?? "", user.Department ?? "", user.Room ?? "", user.Role ?? "", user.Status ?? "");
 
             return new LoginResponse(accessToken, refreshToken, userInfo);
         }
